@@ -30,9 +30,8 @@ jobs:
 
       - name: Package Lambda
         run: |
-          dotnet publish src/GoOrder.API/GoOrder.API.csproj -c Release -o ./package
-          cd ./package
-          zip -r ../lambda.zip ./*
+          dotnet publish -c Release -o ./package
+          zip -r lambda.zip ./package/
         working-directory: src/GoOrder.API
 
       - name: Configure AWS Credentials
@@ -45,6 +44,7 @@ jobs:
       - name: Upload ZIP to S3
         run: |
           aws s3 cp lambda.zip s3://goorder-lambda-bucket/lambda.zip
+        working-directory: src/GoOrder.API
         env:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
