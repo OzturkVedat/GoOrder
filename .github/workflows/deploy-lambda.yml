@@ -49,8 +49,8 @@ jobs:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
 
-      - name: Deploy Lambda from S3
-        run: |
-          aws lambda update-function-code --function-name GoOrderLambda \
-           --s3-bucket goorder-lambda-bucket \
-           --s3-key lambda.zip
+      #- name: Deploy Lambda from S3
+      #  run: |
+      #    aws lambda update-function-code --function-name GoOrderLambda \
+      #     --s3-bucket goorder-lambda-bucket \
+      #     --s3-key lambda.zip
