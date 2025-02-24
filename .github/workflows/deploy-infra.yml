@@ -1,0 +1,42 @@
+name: Deploy Infrastructure
+
+on:
+  workflow_run:
+    workflows: ["Deploy Lambda API"]
+    types:
+      - completed
+
+  push:
+    branches:
+      - main # run when the code is pushed to main
+    paths:
+      - "infra/**" # only trigger if files in infra change
+
+jobs:
+  terraform:
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repo
+        uses: actions/checkout@v4
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: 1.6.0
+
+      - name: Initialize Terraform
+        run: terraform init
+        working-directory: infra
+
+      - name: Terraform Plan
+        run: terraform plan
+        working-directory: infra
+
+      - name: Terraform Apply
+        run: terraform apply -auto-approve
+        working-directory: infra
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
