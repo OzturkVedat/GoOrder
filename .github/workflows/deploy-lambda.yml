@@ -3,9 +3,9 @@ name: Deploy Lambda API
 on:
   push:
     branches:
-      - main
+      - master
     paths:
-      - "src/GoOrder.API/**"
+      - src/GoOrder.API/**
 
 jobs:
   build_and_deploy:

@@ -11,7 +11,7 @@ namespace GoOrder.API.Controllers
         public IActionResult GetOrder(int id)
         {
             return Ok(new { OrderId = id, Status = "Processed" });
-            // check
+            // checking ci/cd
         }
 
         [HttpPost]

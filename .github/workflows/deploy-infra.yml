@@ -10,7 +10,7 @@ on:
     branches:
       - master
     paths:
-      - "infra/**" # trigger if files in infra change
+      - infra/** # trigger if files in infra change
 
 jobs:
   terraform:
