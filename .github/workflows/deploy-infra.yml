@@ -8,9 +8,9 @@ on:
 
   push:
     branches:
-      - main # run when the code is pushed to main
+      - master
     paths:
-      - "infra/**" # only trigger if files in infra change
+      - "infra/**" # trigger if files in infra change
 
 jobs:
   terraform:
