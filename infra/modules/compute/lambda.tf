@@ -7,9 +7,8 @@ resource "aws_lambda_function" "order_processor" {
   memory_size   = 512
   publish       = true
 
-  s3_bucket        = var.lambda_bucket_name
-  s3_key           = var.lambda_bucket_key
-  source_code_hash = filebase64sha256(var.lambda_bucket_key) # specifying the source code hash for updates
+  s3_bucket = var.lambda_bucket_name
+  s3_key    = var.lambda_bucket_key
 
   vpc_config {
     subnet_ids         = [var.private_subnet_id]
