@@ -1,3 +1,4 @@
+# create a lambda for api hosting
 resource "aws_lambda_function" "order_processor" {
   function_name = "OrderProcessorLambda"
   role          = aws_iam_role.lambda_exe_role.arn
