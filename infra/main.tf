@@ -1,4 +1,5 @@
 provider "aws" {
+  # credentials will be fetched from env automatically
   #profile = "default"
   region = var.aws_region
 }
