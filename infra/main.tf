@@ -1,3 +1,12 @@
+terraform {
+  backend "s3" {
+    bucket  = var.tf_state_bucket_name
+    key     = "terraform.tfstate"
+    region  = var.aws_region
+    encrypt = true
+  }
+}
+
 provider "aws" {
   # credentials will be fetched from env automatically
   #profile = "default"

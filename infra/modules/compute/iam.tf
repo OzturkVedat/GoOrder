@@ -41,3 +41,8 @@ resource "aws_iam_role_policy_attachment" "attach_s3_access" {
   policy_arn = aws_iam_policy.s3_access_policy.arn
   role       = aws_iam_role.lambda_exe_role.name
 }
+
+resource "aws_iam_role_policy_attachment" "attach_vpc_access" {
+  role       = aws_iam_role.lambda_exe_role.name
+  policy_arn = "arn:aws:iam::aws:policy/service-role/AWSLambdaVPCAccessExecutionRole"
+}
