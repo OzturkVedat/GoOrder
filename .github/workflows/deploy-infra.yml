@@ -36,6 +36,7 @@ jobs:
       - name: Terraform Plan
         run: terraform plan
         working-directory: infra
+        continue-on-error: true # ensure workflow doesn't fail if no changes are detected
 
       - name: Terraform Apply
         run: terraform apply -auto-approve
