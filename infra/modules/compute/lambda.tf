@@ -3,6 +3,7 @@ resource "aws_lambda_function" "order_processor" {
   function_name = "OrderProcessorLambda"
   role          = aws_iam_role.lambda_exe_role.arn
   runtime       = "dotnet8"
+  handler       = "bootstrap"
   timeout       = 30
   memory_size   = 512
   publish       = true
