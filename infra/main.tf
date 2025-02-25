@@ -1,8 +1,8 @@
 terraform {
   backend "s3" {
-    bucket  = var.tf_state_bucket_name
+    bucket  = "goorder-tfstate-bucket"
     key     = "terraform.tfstate"
-    region  = var.aws_region
+    region  = "eu-north-1"
     encrypt = true
   }
 }
