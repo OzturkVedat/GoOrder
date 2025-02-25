@@ -21,7 +21,6 @@ module "network" {
   order_lambda_func_name  = module.compute.order_lambda_func_name
 }
 
-
 module "compute" {
   source = "./modules/compute"
 
