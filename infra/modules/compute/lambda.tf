@@ -1,12 +1,12 @@
 # create a lambda for api hosting
-resource "aws_lambda_function" "order_processor" {
-  function_name = "OrderProcessorLambda"
+resource "aws_lambda_function" "order_service" {
+  function_name = "OrderServiceLambda"
   role          = aws_iam_role.lambda_exe_role.arn
   runtime       = "dotnet8"
   handler       = "bootstrap"
   timeout       = 30
   memory_size   = 512
-  publish       = true
+  publish       = false # true, if you want a new version in each deploy
 
   s3_bucket = var.lambda_bucket_name
   s3_key    = var.lambda_bucket_key
