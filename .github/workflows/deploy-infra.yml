@@ -2,7 +2,7 @@ name: Deploy Infrastructure
 
 on:
   workflow_run:
-    workflows: ["Deploy Lambda API"]
+    workflows: ["Deploy Lambda API"] # trigger when lambda workflow is completed
     types:
       - completed
 
@@ -10,8 +10,7 @@ on:
     branches:
       - master
     paths:
-      - infra/** # trigger if files in infra change
-      - src/**
+      - infra/** # also trigger if files in infra change
 
 jobs:
   terraform:
