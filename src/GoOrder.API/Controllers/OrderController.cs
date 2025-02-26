@@ -11,7 +11,7 @@ namespace GoOrder.API.Controllers
         public IActionResult GetOrder(int id)
         {
             return Ok(new { OrderId = id, Status = "Processed" });
-            // lambda and infra CI/CD trigger
+            // lambda and infra CI/CD test
         }
 
         [HttpPost]
