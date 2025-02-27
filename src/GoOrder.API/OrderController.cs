@@ -13,7 +13,7 @@ namespace GoOrder.API
         public IActionResult GetOrder(int id)
         {
             return Ok(new { OrderId = id, Status = "Processed" });
-            // lambda and infra CI/CD test again
+            // lambda and infra CI/CD trigger
         }
 
         [HttpPost]
