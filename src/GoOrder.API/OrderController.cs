@@ -1,7 +1,9 @@
-﻿using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Amazon.Lambda.Core;
 
-namespace GoOrder.API.Controllers
+
+namespace GoOrder.API
 {
     [Route("api/[controller]")]
     [ApiController]
