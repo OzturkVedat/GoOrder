@@ -30,8 +30,8 @@ jobs:
 
       - name: Package Lambda
         run: |
-          dotnet publish -c Release -o ./package
-          zip -r lambda.zip ./package/
+          dotnet publish -c Release -o ./var/task
+          zip -r lambda.zip ./var/task/
         working-directory: src/GoOrder.API
 
       - name: Configure AWS Credentials
