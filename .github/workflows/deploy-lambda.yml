@@ -30,13 +30,13 @@ jobs:
         run: dotnet build --configuration Release --no-restore
         working-directory: src/GoOrder.API
 
-      - name: Publish
-        run: dotnet publish --configuration Release --runtime linux-x64 --self-contained false --output ./publish
+      - name: Install Amazon Lambda Tools
+        run: dotnet tool install -g Amazon.Lambda.Tools --version 5.0.0
         working-directory: src/GoOrder.API
 
-      - name: Package Lambda
-        run: zip -r lambda.zip .
-        working-directory: src/GoOrder.API/publish
+      - name: Package Lambda with Amazon.Lambda.Tools
+        run: dotnet lambda package --configuration Release --runtime linux-x64 --self-contained false --output-package lambda.zip
+        working-directory: src/GoOrder.API
 
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v2
@@ -48,7 +48,7 @@ jobs:
       - name: Upload ZIP to S3
         run: |
           aws s3 cp lambda.zip s3://goorder-lambda-bucket/lambda.zip
-        working-directory: src/GoOrder.API/publish
+        working-directory: src/GoOrder.API
         env:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
