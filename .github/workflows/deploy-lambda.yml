@@ -30,12 +30,13 @@ jobs:
         run: dotnet build --configuration Release --no-restore
         working-directory: src/GoOrder.API
 
-      - name: Package Lambda
-        run: |
-          dotnet publish -c Release -o ./publish
-          cd ./publish
-          zip -r ../lambda.zip *
+      - name: Publish
+        run: dotnet publish --configuration Release --runtime linux-x64 --self-contained false --output ./publish
         working-directory: src/GoOrder.API
+
+      - name: Package Lambda
+        run: zip -r lambda.zip .
+        working-directory: src/GoOrder.API/publish
 
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v2
