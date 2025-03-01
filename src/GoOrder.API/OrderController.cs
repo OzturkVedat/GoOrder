@@ -13,7 +13,7 @@ namespace GoOrder.API
         public IActionResult GetOrder(int id)
         {
             return Ok(new { OrderId = id, Status = "Processed" });
-            // redeployment CI/CD trigger
+            // CI/CD trigger
         }
 
         [HttpPost]
