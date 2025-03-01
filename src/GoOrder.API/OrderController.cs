@@ -1,7 +1,4 @@
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Amazon.Lambda.Core;
-
 
 namespace GoOrder.API
 {
