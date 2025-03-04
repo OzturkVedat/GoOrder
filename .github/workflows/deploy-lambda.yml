@@ -35,7 +35,7 @@ jobs:
         working-directory: src/GoOrder.API
 
       - name: Package Lambda with Amazon.Lambda.Tools
-        run: dotnet lambda package --configuration Release --runtime linux-x64 --self-contained false --output-package lambda.zip
+        run: dotnet lambda package --configuration Release --runtime linux-arm64 --self-contained false --output-package lambda.zip
         working-directory: src/GoOrder.API
 
       - name: Configure AWS Credentials
