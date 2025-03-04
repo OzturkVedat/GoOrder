@@ -3,6 +3,7 @@
 	<PropertyGroup>
 		<TargetFramework>net8.0</TargetFramework>
 		<Nullable>enable</Nullable>
+		<AssemblyName>GoOrder.API</AssemblyName>
 		<ImplicitUsings>enable</ImplicitUsings>
 		<UserSecretsId>99199904-aa22-483b-b78e-7bb676799892</UserSecretsId>
 		<DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
