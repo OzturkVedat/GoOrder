@@ -2,8 +2,8 @@
 resource "aws_lambda_function" "order_service" {
   function_name = "OrderServiceLambda"
   role          = aws_iam_role.lambda_exe_role.arn
-  runtime       = "dotnet8"
-  handler       = "Amazon.Lambda.AspNetCoreServer.Hosting.HostingLambdaHandler::FunctionHandlerAsync"
+  package_type  = "Image"
+  image_uri     = var.lambda_api_image_uri
   timeout       = 30
   memory_size   = 512
   publish       = false # true, if you want versioning

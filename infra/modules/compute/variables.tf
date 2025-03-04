@@ -10,5 +10,9 @@ variable "lambda_bucket_key" {
   default     = "lambda.zip"
 }
 
+variable "lambda_api_image_uri" {
+  default = "962546904675.dkr.ecr.eu-north-1.amazonaws.com/goorder/api:latest"
+}
+
 variable "private_subnet_id" {}
 variable "lambda_sg_id" {}

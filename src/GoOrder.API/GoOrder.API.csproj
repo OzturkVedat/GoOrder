@@ -2,15 +2,17 @@
 
 	<PropertyGroup>
 		<TargetFramework>net8.0</TargetFramework>
-		<AssemblyName>GoOrder.API</AssemblyName>
 		<Nullable>enable</Nullable>
 		<ImplicitUsings>enable</ImplicitUsings>
-		<AWSProjectType>Lambda</AWSProjectType>
+		<UserSecretsId>99199904-aa22-483b-b78e-7bb676799892</UserSecretsId>
+		<DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
+		<DockerfileContext>.</DockerfileContext>
 	</PropertyGroup>
 
 	<ItemGroup>
 		<PackageReference Include="Amazon.Lambda.AspNetCoreServer.Hosting" Version="1.7.4" />
 		<PackageReference Include="Amazon.Lambda.Serialization.SystemTextJson" Version="2.4.4" />
+		<PackageReference Include="Microsoft.VisualStudio.Azure.Containers.Tools.Targets" Version="1.21.0" />
 		<PackageReference Include="Swashbuckle.AspNetCore" Version="7.3.0" />
 	</ItemGroup>
 

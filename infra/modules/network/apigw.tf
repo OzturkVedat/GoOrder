@@ -1,7 +1,14 @@
 resource "aws_apigatewayv2_api" "goorder_api" {
-  name          = "GoOrderAPI"
+  name          = "goorder-apigw"
   description   = "API Gateway for Order Processing"
   protocol_type = "HTTP"
+}
+
+# create stage and enable auto-deploy
+resource "aws_apigatewayv2_stage" "dev" {
+  api_id      = aws_apigatewayv2_api.goorder_api.id
+  name        = "dev"
+  auto_deploy = true
 }
 
 # link the lambda to apigw
@@ -16,13 +23,6 @@ resource "aws_apigatewayv2_route" "root_route" {
   api_id    = aws_apigatewayv2_api.goorder_api.id
   route_key = "ANY /{proxy+}"
   target    = "integrations/${aws_apigatewayv2_integration.lambda_integration.id}"
-}
-
-# create stage and enable auto-deploy
-resource "aws_apigatewayv2_stage" "prod" {
-  api_id      = aws_apigatewayv2_api.goorder_api.id
-  name        = "prod"
-  auto_deploy = true
 }
 
 # grant apigw permission to invoke lambda function
