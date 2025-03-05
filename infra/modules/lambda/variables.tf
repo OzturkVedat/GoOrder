@@ -4,10 +4,10 @@ variable "lambda_bucket_name" {
   default     = "goorder-lambda-bucket"
 }
 
-variable "lambda_bucket_key" {
+variable "user_lambda_bucket_key" {
   description = "Object key in the bucket (zip)"
   type        = string
-  default     = "lambda.zip"
+  default     = "user_lambda.zip"
 }
 
 variable "private_subnet_id" {}

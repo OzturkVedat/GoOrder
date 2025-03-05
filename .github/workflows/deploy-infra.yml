@@ -1,8 +1,10 @@
 name: Deploy Infrastructure
 
 on:
+  workflow_dispatch:
+
   workflow_run:
-    workflows: ["Deploy Lambda API"] # trigger when lambda workflow is completed
+    workflows: ["Deploy User Service"]
     types:
       - completed
 

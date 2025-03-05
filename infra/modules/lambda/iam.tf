@@ -31,7 +31,7 @@ resource "aws_iam_policy" "s3_access_policy" {
         ]
         Resource = [
           "arn:aws:s3:::${var.lambda_bucket_name}",
-          "arn:aws:s3:::${var.lambda_bucket_name}/${var.lambda_bucket_key}"
+          "arn:aws:s3:::${var.lambda_bucket_name}/${var.user_lambda_bucket_key}"
         ]
       }
     ]
