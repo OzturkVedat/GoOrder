@@ -1,9 +1,9 @@
 # create a lambda for api hosting
-resource "aws_lambda_function" "order_service" {
-  function_name = "OrderServiceLambda"
+resource "aws_lambda_function" "user_service" {
+  function_name = "UserServiceLambda"
   role          = aws_iam_role.lambda_exe_role.arn
   runtime       = "dotnet8"
-  handler       = "GoOrder.API::LambdaEntryPoint::FunctionHandlerAsync"
+  handler       = "UserService"
   timeout       = 30
   memory_size   = 512
   publish       = false # true, if you want versioning

@@ -7,7 +7,7 @@ on:
     branches:
       - master
     paths:
-      - src/GoOrder.API/**
+      - src/UserService/**
 
 jobs:
   build_and_deploy:
@@ -24,19 +24,19 @@ jobs:
 
       - name: Restore Dependencies
         run: dotnet restore
-        working-directory: src/GoOrder.API
+        working-directory: src/UserService
 
       - name: Build API
         run: dotnet build --configuration Release --no-restore
-        working-directory: src/GoOrder.API
+        working-directory: src/UserService
 
       - name: Install Amazon Lambda Tools
         run: dotnet tool install -g Amazon.Lambda.Tools --version 5.0.0
-        working-directory: src/GoOrder.API
+        working-directory: src/UserService
 
       - name: Package Lambda with Amazon.Lambda.Tools
-        run: dotnet lambda package --configuration Release --runtime linux-arm64 --self-contained false --output-package lambda.zip
-        working-directory: src/GoOrder.API
+        run: dotnet lambda package --configuration Release --runtime linux-x86 --self-contained false --output-package lambda.zip
+        working-directory: src/UserService
 
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v2
@@ -48,7 +48,7 @@ jobs:
       - name: Upload ZIP to S3
         run: |
           aws s3 cp lambda.zip s3://goorder-lambda-bucket/lambda.zip
-        working-directory: src/GoOrder.API
+        working-directory: src/UserService
         env:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
