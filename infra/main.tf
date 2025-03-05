@@ -16,13 +16,13 @@ provider "aws" {
 module "network" {
   source = "./modules/network"
 
-  aws_az_1                = var.aws_az_1
-  order_lambda_invoke_arn = module.compute.order_lambda_invoke_arn
-  order_lambda_func_name  = module.compute.order_lambda_func_name
+  aws_az_1                   = var.aws_az_1
+  register_lambda_invoke_arn = module.lambda.register_lambda_invoke_arn
+  register_lambda_func_name  = module.lambda.register_lambda_func_name
 }
 
-module "compute" {
-  source = "./modules/compute"
+module "lambda" {
+  source = "./modules/lambda"
 
   private_subnet_id = module.network.private_subnet_id
   lambda_sg_id      = module.network.lambda_sg_id

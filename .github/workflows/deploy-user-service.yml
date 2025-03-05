@@ -31,8 +31,8 @@ jobs:
 
       - name: Upload Some Params to SSM
         run: |
-          aws ssm put-parameter --name "goorder/user_pool_client_id" --value "${{secrets.USER_POOL_CLIENT_ID}}" --type "SecureString" --overwrite
-          aws ssm put-parameter --name "goorder/user_pool_client_secret" --value "${{secrets.USER_POOL_CLIENT_SECRET}}" --type "SecureString" --overwrite
+          aws ssm put-parameter --name "/goorder/user_pool_client_id" --value "${{secrets.USER_POOL_CLIENT_ID}}" --type "SecureString" --overwrite
+          aws ssm put-parameter --name "/goorder/user_pool_client_secret" --value "${{secrets.USER_POOL_CLIENT_SECRET}}" --type "SecureString" --overwrite
 
       - name: Setup .NET
         uses: actions/setup-dotnet@v3
