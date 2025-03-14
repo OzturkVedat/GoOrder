@@ -2,12 +2,17 @@ locals {
   lambda_endpoints = {
     register = {
       lambda_function = aws_lambda_function.register_user
-      route_key       = "POST /register"
+      route_key       = "POST /register-user"
       permission_sid  = "AllowAPIGatewayInvokeRegister"
     }
     login = {
       lambda_function = aws_lambda_function.login_user
-      route_key       = "POST /login"
+      route_key       = "POST /login-user"
+      permission_sid  = "AllowAPIGatewayInvokeLogin"
+    }
+    confirm = {
+      lambda_function = aws_lambda_function.confirm_user
+      route_key       = "POST /confirm-email"
       permission_sid  = "AllowAPIGatewayInvokeLogin"
     }
   }

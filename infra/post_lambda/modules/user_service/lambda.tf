@@ -11,6 +11,20 @@ resource "aws_lambda_function" "register_user" {
   s3_key    = var.user_lambda_bucket_key
 }
 
+resource "aws_lambda_function" "confirm_user" {
+  function_name = "GoOrderUserConfirm"
+  role          = aws_iam_role.user_lambda_exe_role.arn
+  runtime       = "dotnet8"
+  handler       = "UserService::UserService.Functions.ConfirmUser::FunctionHandler"
+  timeout       = 30
+  memory_size   = 512
+  publish       = false
+
+  s3_bucket = var.lambda_bucket_name
+  s3_key    = var.user_lambda_bucket_key
+}
+
+
 resource "aws_lambda_function" "login_user" {
   function_name = "GoOrderUserLogin"
   role          = aws_iam_role.user_lambda_exe_role.arn
