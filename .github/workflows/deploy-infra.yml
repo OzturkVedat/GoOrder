@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
 
   workflow_run:
-    workflows: ["Deploy User Service"]
+    workflows: ["Push User Service Lambdas"]
     types:
       - completed
 
@@ -12,7 +12,7 @@ on:
     branches:
       - master
     paths:
-      - infra/** # also trigger if files in infra change
+      - infra/post_lambda/**
 
 jobs:
   terraform:
@@ -20,6 +20,10 @@ jobs:
     env:
       AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
       AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+
+    defaults:
+      run:
+        working-directory: infra/post_lambda
 
     steps:
       - name: Checkout Repo
@@ -32,13 +36,10 @@ jobs:
 
       - name: Initialize Terraform
         run: terraform init
-        working-directory: infra
 
       - name: Terraform Plan
         run: terraform plan
-        working-directory: infra
         continue-on-error: true # ensure workflow doesn't fail if no changes are detected
 
       - name: Terraform Apply
         run: terraform apply -auto-approve
-        working-directory: infra

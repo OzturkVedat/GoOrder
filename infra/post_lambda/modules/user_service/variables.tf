@@ -10,5 +10,5 @@ variable "user_lambda_bucket_key" {
   default     = "user_lambda.zip"
 }
 
-variable "private_subnet_id" {}
-variable "lambda_sg_id" {}
+variable "apigw_id" {}
+variable "apigw_exe_arn" {}
