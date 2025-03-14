@@ -2,7 +2,7 @@ resource "aws_lambda_function" "register_user" {
   function_name = "GoOrderUserRegister"
   role          = aws_iam_role.user_lambda_exe_role.arn
   runtime       = "dotnet8"
-  handler       = "UserService.Functions::UserService.Functions.RegisterUser::FunctionHandler"
+  handler       = "UserService::UserService.Functions.RegisterUser::FunctionHandler"
   timeout       = 30
   memory_size   = 512
   publish       = false # true, if you want versioning
@@ -12,10 +12,10 @@ resource "aws_lambda_function" "register_user" {
 }
 
 resource "aws_lambda_function" "login_user" {
-  function_name = "UserLoginLambda"
+  function_name = "GoOrderUserLogin"
   role          = aws_iam_role.user_lambda_exe_role.arn
   runtime       = "dotnet8"
-  handler       = "UserService.Functions::UserService.Functions.LoginUSer::FunctionHandler"
+  handler       = "UserService::UserService.Functions.LoginUser::FunctionHandler"
   timeout       = 30
   memory_size   = 512
   publish       = false
