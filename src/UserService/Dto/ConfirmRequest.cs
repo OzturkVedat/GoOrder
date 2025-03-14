@@ -6,9 +6,10 @@ using System.Threading.Tasks;
 
 namespace UserService.Dto
 {
-    public class AuthResponse
+    public class ConfirmRequest
     {
-        public string AccessToken { get; set; } = string.Empty;
-        public string RefreshToken { get; set; } = string.Empty;
+        public string Email { get; set; }
+        public string ConfirmationCode { get; set; }
     }
+
 }

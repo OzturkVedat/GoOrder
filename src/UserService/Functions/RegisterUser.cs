@@ -21,10 +21,9 @@ public class RegisterUser
     public RegisterUser()
     {
         _cognitoClient = new AmazonCognitoIdentityProviderClient();
+
         var ssmClient = new AmazonSimpleSystemsManagementClient();
         _utilService = new UtilService(ssmClient);
-
-        _userPoolId = _utilService.GetParameter("/goorder/user-pool-id").GetAwaiter().GetResult();
         _appClientId = _utilService.GetParameter("/goorder/app-client-id").GetAwaiter().GetResult();
     }
 
@@ -35,17 +34,20 @@ public class RegisterUser
     /// <param name="context">The ILambdaContext that provides methods for logging and describing the Lambda environment.</param>
     /// <returns>The Cognito User ID (sub) of the newly registered user.</returns>
     /// <exception cref="Exception">Thrown when user registration fails.</exception>
-    public async Task<string> FunctionHandler(AuthRequest request, ILambdaContext context)
+    public async Task<ResultModel> FunctionHandler(AuthRequest request, ILambdaContext context)
     {
         context.Logger.LogLine($"Registering user with email: {request.Email}");
 
         try
         {
+            var secretHash = await _utilService.ComputeSecretHash(_appClientId, request.Email);
+            
             var signUpRequest = new SignUpRequest
             {
                 ClientId = _appClientId,
                 Username = request.Email,
                 Password = request.Password,
+                SecretHash= secretHash,
                 UserAttributes = new List<AttributeType>
                 {
                     new AttributeType{Name= "email", Value=request.Email}
@@ -53,7 +55,7 @@ public class RegisterUser
             };
             var signUpResponse = await _cognitoClient.SignUpAsync(signUpRequest);
             context.Logger.LogLine($"User registered successfully with sub: {signUpResponse.UserSub}");
-            return signUpResponse.UserSub;
+            return new SuccessDataResult<string>(signUpResponse.UserSub);
         }
         catch (AmazonCognitoIdentityProviderException ex)
         {
