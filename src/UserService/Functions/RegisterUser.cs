@@ -1,8 +1,9 @@
 using Amazon.CognitoIdentityProvider;
 using Amazon.CognitoIdentityProvider.Model;
+using Amazon.Lambda.APIGatewayEvents;
 using Amazon.Lambda.Core;
 using Amazon.SimpleSystemsManagement;
-using Amazon.SimpleSystemsManagement.Model;
+using System.Text.Json;
 using UserService.Dto;
 
 // Assembly attribute to enable the Lambda function's JSON input to be converted into a .NET class.
@@ -34,33 +35,54 @@ public class RegisterUser
     /// <param name="context">The ILambdaContext that provides methods for logging and describing the Lambda environment.</param>
     /// <returns>The Cognito User ID (sub) of the newly registered user.</returns>
     /// <exception cref="Exception">Thrown when user registration fails.</exception>
-    public async Task<ResultModel> FunctionHandler(AuthRequest request, ILambdaContext context)
+    public async Task<APIGatewayProxyResponse> FunctionHandler(APIGatewayProxyRequest request, ILambdaContext context)
     {
-        context.Logger.LogLine($"Registering user with email: {request.Email}");
+        context.Logger.LogLine($"Raw request body: {request.Body}");
+        var authRequest = JsonSerializer.Deserialize<AuthRequest>(request.Body);
+        if (authRequest == null || string.IsNullOrEmpty(authRequest.Email) || string.IsNullOrEmpty(authRequest.Password))
+        {
+            return new APIGatewayProxyResponse
+            {
+                StatusCode = 400,
+                Body = JsonSerializer.Serialize(new { Message = "Invalid request payload: Email or Password is missing." }),
+                Headers = new Dictionary<string, string> { { "Content-Type", "application/json" } }
+            };
+        }
 
         try
         {
-            var secretHash = await _utilService.ComputeSecretHash(_appClientId, request.Email);
+            var secretHash = await _utilService.ComputeSecretHash(_appClientId, authRequest.Email);
             
             var signUpRequest = new SignUpRequest
             {
                 ClientId = _appClientId,
-                Username = request.Email,
-                Password = request.Password,
+                Username = authRequest.Email,
+                Password = authRequest.Password,
                 SecretHash= secretHash,
                 UserAttributes = new List<AttributeType>
                 {
-                    new AttributeType{Name= "email", Value=request.Email}
+                    new AttributeType{Name= "email", Value=authRequest.Email}
                 }
             };
             var signUpResponse = await _cognitoClient.SignUpAsync(signUpRequest);
             context.Logger.LogLine($"User registered successfully with sub: {signUpResponse.UserSub}");
-            return new SuccessDataResult<string>(signUpResponse.UserSub);
+            
+            return new APIGatewayProxyResponse
+            {
+                StatusCode = 200,
+                Body = JsonSerializer.Serialize(new { Message = "User registered successfully", UserSub = signUpResponse.UserSub }),
+                Headers = new Dictionary<string, string> { { "Content-Type", "application/json" } }
+            };
         }
         catch (AmazonCognitoIdentityProviderException ex)
         {
             context.Logger.LogLine($"Error registering user: {ex.Message}");
-            throw new Exception("Error registering user in Cognito", ex);
+            return new APIGatewayProxyResponse
+            {
+                StatusCode = 500,
+                Body = JsonSerializer.Serialize(new { Message = "Error registering user in Cognito"}),
+                Headers = new Dictionary<string, string> { { "Content-Type", "application/json" } }
+            };
         }
 
     }

@@ -1,11 +1,13 @@
 ﻿using Amazon.CognitoIdentityProvider;
 using Amazon.CognitoIdentityProvider.Model;
+using Amazon.Lambda.APIGatewayEvents;
 using Amazon.Lambda.Core;
 using Amazon.SimpleSystemsManagement;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Text.Json;
 using System.Threading.Tasks;
 using UserService.Dto;
 
@@ -34,25 +36,44 @@ public class ConfirmUser
     /// <returns>The confirmation result.</returns>
     /// <exception cref="Exception">Thrown when confirmation fails.</exception>
 
-    public async Task<ResultModel> FunctionHandler(ConfirmRequest request, ILambdaContext context)
+    public async Task<APIGatewayProxyResponse> FunctionHandler(APIGatewayProxyRequest request, ILambdaContext context)
     {
         try
         {
-            var secretHash = await _utilService.ComputeSecretHash(_appClientId, request.Email);
+            var confirmRequest = JsonSerializer.Deserialize<ConfirmRequest>(request.Body);
+            if (confirmRequest == null || string.IsNullOrEmpty(confirmRequest.Email) || string.IsNullOrEmpty(confirmRequest.ConfirmationCode))
+            {
+                return new APIGatewayProxyResponse
+                {
+                    StatusCode = 400,
+                    Body = JsonSerializer.Serialize(new { message = "Invalid request payload: Email or Confirmation Code is missing." })
+                };
+            }
+
+            var secretHash = await _utilService.ComputeSecretHash(_appClientId, confirmRequest.Email);
             var cognitoRequest = new ConfirmSignUpRequest
             {
                 ClientId = _appClientId,
-                Username = request.Email,
+                Username = confirmRequest.Email,
                 SecretHash = secretHash,
-                ConfirmationCode = request.ConfirmationCode
+                ConfirmationCode = confirmRequest.ConfirmationCode
             };
             await _cognitoClient.ConfirmSignUpAsync(cognitoRequest);
-            return new SuccessResult("User confirmed successfully");
+
+            return new APIGatewayProxyResponse
+            {
+                StatusCode = 200,
+                Body = JsonSerializer.Serialize(new { message = "User confirmed successfully" })
+            };
         }
         catch (AmazonCognitoIdentityProviderException ex)
         {
             context.Logger.LogLine($"Error confirming user: {ex.Message}");
-            return new FailureResult("Error while confirming user..");
+            return new APIGatewayProxyResponse
+            {
+                StatusCode = 500,
+                Body = JsonSerializer.Serialize(new { message = "Error while confirming user." })
+            };
         }
     }
 }
