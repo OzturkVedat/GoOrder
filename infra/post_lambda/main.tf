@@ -31,3 +31,17 @@ module "user_service" {
   apigw_id      = module.network.apigw_id
   apigw_exe_arn = module.network.apigw_exe_arn
 }
+
+module "product_service" {
+  source = "./modules/product_service"
+
+  apigw_id      = module.network.apigw_id
+  apigw_exe_arn = module.network.apigw_exe_arn
+}
+
+module "order_service" {
+  source = "./modules/order_service"
+
+  apigw_id      = module.network.apigw_id
+  apigw_exe_arn = module.network.apigw_exe_arn
+}
