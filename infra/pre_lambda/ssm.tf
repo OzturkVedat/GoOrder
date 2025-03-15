@@ -17,3 +17,12 @@ resource "aws_ssm_parameter" "app_client_secret" {
     Name = "GoOrderAppClientSecret"
   }
 }
+
+resource "aws_ssm_parameter" "pay_req_topic_arn" {
+  name  = "/goorder/topic-arn/payment-required"
+  type  = "SecureString"
+  value = var.pay_req_topic_arn
+  tags = {
+    Name = "GoOrderPaymentRequiredTopicArn"
+  }
+}

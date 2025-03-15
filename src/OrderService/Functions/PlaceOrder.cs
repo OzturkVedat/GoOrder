@@ -2,6 +2,8 @@ using Amazon.DynamoDBv2;
 using Amazon.DynamoDBv2.Model;
 using Amazon.Lambda.APIGatewayEvents;
 using Amazon.Lambda.Core;
+using Amazon.SimpleNotificationService;
+using Amazon.SimpleSystemsManagement;
 using OrderService.Models;
 using System.Text.Json;
 using System.Text.Json.Serialization;
@@ -9,15 +11,24 @@ using System.Text.Json.Serialization;
 // Assembly attribute to enable the Lambda function's JSON input to be converted into a .NET class.
 [assembly: LambdaSerializer(typeof(Amazon.Lambda.Serialization.SystemTextJson.DefaultLambdaJsonSerializer))]
 
-namespace OrderService;
+namespace OrderService.Functions;
 
 public class PlaceOrder
 {
+    private readonly IAmazonSimpleNotificationService _snsClient;
+    private readonly IAmazonSimpleSystemsManagement _ssmClient;
+    private readonly UtilService _utilService;
+
+
     private readonly IAmazonDynamoDB _dynamoClient;
     private readonly string _productsTableName = "Products";
     private readonly string _ordersTableName = "Orders";
     public PlaceOrder()
     {
+        _ssmClient = new AmazonSimpleSystemsManagementClient();
+        _snsClient= new AmazonSimpleNotificationServiceClient();
+        _utilService = new UtilService(_ssmClient, _snsClient);
+
         _dynamoClient = new AmazonDynamoDBClient();
     }
 
@@ -62,8 +73,8 @@ public class PlaceOrder
                 };
             }
 
-            var dbSaveResult = await SaveOrderToDb(order, context);
-            if (dbSaveResult is FailureResult saveFail)
+            var dbResult = await SaveOrderToDb(order, context);
+            if (dbResult is FailureResult saveFail)
             {
                 return new APIGatewayProxyResponse
                 {
@@ -72,18 +83,33 @@ public class PlaceOrder
                 };
             }
 
+            var paramResult = _utilService.GetParameter("goorder/topic-arn/payment-required", context).GetAwaiter().GetResult();
+            if( paramResult is not SuccessDataResult<string> topicResult)
+            {
+                return new APIGatewayProxyResponse
+                {
+                    StatusCode = 400,
+                    Body = JsonSerializer.Serialize(new { message = "An unexpected error occured" })
+                };
+            }          
+            var paymentMessage = new
+            {
+                OrderId = order.OrderId,
+                UserId = order.UserId,
+                TotalPrice = order.TotalPrice,
+                Status = order.Status
+            };
+            var pubResult = await _utilService.PublishMessageToSns(topicResult.Data, paymentMessage, context);
+            if (pubResult.IsSuccess)
+            {
+                return new APIGatewayProxyResponse
+                {
+                    StatusCode = 200,
+                    Body = JsonSerializer.Serialize(new { message = "Order placed successfully" })
+                };
+            }
             // process
 
-            return new APIGatewayProxyResponse
-            {
-                StatusCode = 200,
-                Body = JsonSerializer.Serialize(new { message = "Order placed successfully" })
-            };
-        }
-        catch (InvalidOperationException invOpEx)
-        {
-            // Handle invalid operation exceptions
-            context.Logger.LogLine($"Invalid operation: {invOpEx.Message}");
         }
         catch (Exception ex)
         {

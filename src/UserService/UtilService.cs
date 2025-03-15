@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace UserService
 {
-    class UtilService
+    public class UtilService
     {
         private readonly IAmazonSimpleSystemsManagement _ssmClient;
 
