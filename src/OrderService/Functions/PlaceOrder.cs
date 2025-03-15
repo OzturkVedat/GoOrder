@@ -108,7 +108,10 @@ public class PlaceOrder
                     Body = JsonSerializer.Serialize(new { message = "Order placed successfully" })
                 };
             }
-            // process
+            else
+                return new APIGatewayProxyResponse { StatusCode = 400, Body = JsonSerializer.Serialize(new { message = "Failed to process the order." }) };
+
+            // process further?
 
         }
         catch (Exception ex)
