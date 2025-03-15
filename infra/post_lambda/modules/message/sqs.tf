@@ -12,7 +12,7 @@ data "aws_iam_policy_document" "sqs_policy" {
     actions = ["SQS:SendMessage"]
 
     resources = [
-      aws_sqs_queue.payment.arn
+      aws_sqs_queue.payment_service.arn
     ]
 
     principals {
