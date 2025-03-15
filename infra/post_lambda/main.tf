@@ -17,6 +17,14 @@ module "network" {
   source = "./modules/network"
 }
 
+module "message" {
+  source = "./modules/message"
+}
+
+module "storage" {
+  source = "./modules/storage"
+}
+
 module "user_service" {
   source = "./modules/user_service"
 
