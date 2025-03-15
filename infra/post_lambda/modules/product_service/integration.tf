@@ -5,7 +5,7 @@ locals {
       route_key       = "POST /product/add"
       permission_sid  = "AllowAPIGatewayInvokeRegister"
     }
-    add_product = {
+    get_store_products = {
       lambda_function = aws_lambda_function.get_store_products
       route_key       = "GET /product/store/{storeId}"
       permission_sid  = "AllowAPIGatewayInvokeRegister"
