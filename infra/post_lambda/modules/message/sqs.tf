@@ -3,7 +3,7 @@ resource "aws_sqs_queue" "payment_service" {
 }
 
 resource "aws_sqs_queue_policy" "payment_qp" {
-  queue_url = aws_sqs_queue.payment.url
+  queue_url = aws_sqs_queue.payment_service.url
   policy    = data.aws_iam_policy_document.sqs_policy.json
 }
 
