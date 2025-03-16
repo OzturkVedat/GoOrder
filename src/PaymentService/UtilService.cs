@@ -1,19 +1,14 @@
-﻿using Amazon.SimpleSystemsManagement.Model;
-using Amazon.SimpleSystemsManagement;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Amazon.SimpleNotificationService;
+﻿using Amazon.Lambda.APIGatewayEvents;
 using Amazon.Lambda.Core;
-using OrderService.Models;
-using System.Text.Json;
 using Amazon.SimpleNotificationService.Model;
-using Amazon.Lambda.APIGatewayEvents;
+using Amazon.SimpleNotificationService;
+using Amazon.SimpleSystemsManagement.Model;
+using Amazon.SimpleSystemsManagement;
 using System.Net;
+using System.Text.Json;
+using PaymentService.Models;
 
-namespace OrderService
+namespace PaymentService
 {
     public class UtilService
     {
@@ -45,7 +40,6 @@ namespace OrderService
                     Name = paramName,
                     WithDecryption = true
                 };
-                /// change
 
                 var response = await _ssmClient.GetParameterAsync(request);
                 return new SuccessDataResult<string>(response.Parameter.Value);
@@ -68,17 +62,16 @@ namespace OrderService
                     TopicArn = topicArn,
                     Message = snsMessage
                 };
-                var response= await _snsClient.PublishAsync(pubRequest);
+                var response = await _snsClient.PublishAsync(pubRequest);
                 context.Logger.Log($"Message published to SNS with MessageId: {response.MessageId}");
                 return new SuccessResult("Message published successfully.");
             }
-            catch (AmazonSimpleNotificationServiceException ex) 
+            catch (AmazonSimpleNotificationServiceException ex)
             {
                 context.Logger.LogError($"Error publishing message to SNS", ex);
                 return new FailureResult("Error publishing message to SNS.");
             }
         }
-
 
     }
 }
