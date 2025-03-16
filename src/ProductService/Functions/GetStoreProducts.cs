@@ -24,11 +24,9 @@ public class GetStoreProducts
     {
         context.Logger.LogInformation("Processing request to get store products.");
 
-        if (request.QueryStringParameters == null || !request.QueryStringParameters.TryGetValue("storeId", out string storeId) || string.IsNullOrEmpty(storeId))
-        {
+        if ( !request.PathParameters.TryGetValue("storeId", out string storeId) || string.IsNullOrEmpty(storeId))
             return _utilService.CreateResponse(HttpStatusCode.BadRequest, "Missing or invalid storeId parameter.");
-        }
-
+        
         var queryReq = new QueryRequest
         {
             TableName = _productTableName,
