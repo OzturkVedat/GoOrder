@@ -50,7 +50,7 @@ public class ConfirmUser
                 };
             }
 
-            var secretHash = await _utilService.ComputeSecretHash(_appClientId, confirmRequest.Email);
+            //var secretHash = await _utilService.ComputeSecretHash(_appClientId, confirmRequest.Email);
             var cognitoRequest = new ConfirmSignUpRequest
             {
                 ClientId = _appClientId,
