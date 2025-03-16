@@ -68,7 +68,7 @@ public class PlaceOrder
                 return _utilService.CreateResponse(HttpStatusCode.InternalServerError, saveFail.Message);
 
 
-            var paramResult = _utilService.GetParameter("goorder/topic-arn/payment-required", context).GetAwaiter().GetResult();
+            var paramResult = _utilService.GetParameter("/goorder/topic-arn/payment-required", context).GetAwaiter().GetResult();
             if (paramResult is not SuccessDataResult<string> topicResult)
                 return _utilService.CreateResponse(HttpStatusCode.InternalServerError, "An unexpected error occured");
 
