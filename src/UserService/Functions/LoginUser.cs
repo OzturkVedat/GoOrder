@@ -53,8 +53,8 @@ public class LoginUser
                 AuthParameters = new Dictionary<string, string>
                 {
                     { "USERNAME", authRequest.Email },
-                    { "PASSWORD", authRequest.Password },
-                    {"SECRET_HASH", await _utilService.ComputeSecretHash(_appClientId, authRequest.Email) }
+                    { "PASSWORD", authRequest.Password }
+                    //{"SECRET_HASH", await _utilService.ComputeSecretHash(_appClientId, authRequest.Email) }
                 }
             };
 

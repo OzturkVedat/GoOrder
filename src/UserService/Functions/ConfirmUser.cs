@@ -55,7 +55,7 @@ public class ConfirmUser
             {
                 ClientId = _appClientId,
                 Username = confirmRequest.Email,
-                SecretHash = secretHash,
+               // SecretHash = secretHash,
                 ConfirmationCode = confirmRequest.ConfirmationCode
             };
             await _cognitoClient.ConfirmSignUpAsync(cognitoRequest);

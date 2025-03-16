@@ -51,14 +51,14 @@ public class RegisterUser
 
         try
         {
-            var secretHash = await _utilService.ComputeSecretHash(_appClientId, authRequest.Email);
+            //var secretHash = await _utilService.ComputeSecretHash(_appClientId, authRequest.Email);
             
             var signUpRequest = new SignUpRequest
             {
                 ClientId = _appClientId,
                 Username = authRequest.Email,
                 Password = authRequest.Password,
-                SecretHash= secretHash,
+                //SecretHash= secretHash,
                 UserAttributes = new List<AttributeType>
                 {
                     new AttributeType{Name= "email", Value=authRequest.Email}
