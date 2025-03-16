@@ -13,13 +13,17 @@ provider "aws" {
   region = var.aws_region
 }
 
+module "auth" {
+  source = "./modules/auth"
+}
+
 module "network" {
   source = "./modules/network"
 
   aws_region = var.aws_region
 
-  user_pool_id  = data.aws_ssm_parameter.user_pool_id.value
-  app_client_id = data.aws_ssm_parameter.app_client_id.value
+  user_pool_id  = module.auth.user_pool_id
+  app_client_id = module.auth.app_client_id
 }
 
 module "message" {
