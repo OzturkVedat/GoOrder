@@ -12,7 +12,7 @@ on:
     branches:
       - master
     paths:
-      - infra/post_lambda/**
+      - infra/**
 
 jobs:
   terraform:
@@ -24,7 +24,7 @@ jobs:
 
     defaults:
       run:
-        working-directory: infra/post_lambda
+        working-directory: infra
 
     steps:
       - name: Checkout Repo
