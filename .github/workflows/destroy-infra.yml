@@ -12,7 +12,7 @@ jobs:
 
     defaults:
       run:
-        working-directory: infra/post_lambda
+        working-directory: infra
 
     steps:
       - name: Checkout Repo
