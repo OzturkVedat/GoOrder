@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
 
   workflow_run:
-    workflows: ["Push User Service Lambdas", "Push Order Service Lambdas"]
+    workflows: ["Push User Service Lambdas", "Push Order Service Lambdas", "Push Product Service Lambdas"]
     types:
       - completed
 

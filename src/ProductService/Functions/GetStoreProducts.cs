@@ -10,7 +10,7 @@ namespace ProductService.Functions;
 
 public class GetStoreProducts
 {
-    private readonly string _productTableName;
+    private readonly string _productTableName="Products";
     private readonly IAmazonDynamoDB _dynamoClient;
 
     private readonly UtilService _utilService;
