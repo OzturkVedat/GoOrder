@@ -6,6 +6,7 @@ using Amazon.SimpleSystemsManagement;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
 using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
@@ -42,38 +43,22 @@ public class ConfirmUser
         {
             var confirmRequest = JsonSerializer.Deserialize<ConfirmRequest>(request.Body);
             if (confirmRequest == null || string.IsNullOrEmpty(confirmRequest.Email) || string.IsNullOrEmpty(confirmRequest.ConfirmationCode))
-            {
-                return new APIGatewayProxyResponse
-                {
-                    StatusCode = 400,
-                    Body = JsonSerializer.Serialize(new { message = "Invalid request payload: Email or Confirmation Code is missing." })
-                };
-            }
+                return _utilService.CreateResponse(HttpStatusCode.BadRequest, "Invalid request payload: Email or Confirmation Code is missing.");
+            
 
-            //var secretHash = await _utilService.ComputeSecretHash(_appClientId, confirmRequest.Email);
             var cognitoRequest = new ConfirmSignUpRequest
             {
                 ClientId = _appClientId,
                 Username = confirmRequest.Email,
-               // SecretHash = secretHash,
                 ConfirmationCode = confirmRequest.ConfirmationCode
             };
             await _cognitoClient.ConfirmSignUpAsync(cognitoRequest);
-
-            return new APIGatewayProxyResponse
-            {
-                StatusCode = 200,
-                Body = JsonSerializer.Serialize(new { message = "User confirmed successfully" })
-            };
+            return _utilService.CreateResponse(HttpStatusCode.OK, "User confirmed successfully");
         }
         catch (AmazonCognitoIdentityProviderException ex)
         {
             context.Logger.LogLine($"Error confirming user: {ex.Message}");
-            return new APIGatewayProxyResponse
-            {
-                StatusCode = 500,
-                Body = JsonSerializer.Serialize(new { message = "Error while confirming user." })
-            };
+            return _utilService.CreateResponse(HttpStatusCode.InternalServerError, "Error while confirming user..");
         }
     }
 }

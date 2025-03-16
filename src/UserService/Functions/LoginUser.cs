@@ -3,6 +3,7 @@ using Amazon.CognitoIdentityProvider.Model;
 using Amazon.Lambda.APIGatewayEvents;
 using Amazon.Lambda.Core;
 using Amazon.SimpleSystemsManagement;
+using System.Net;
 using System.Text.Json;
 using UserService.Dto;
 
@@ -37,14 +38,7 @@ public class LoginUser
         {
             var authRequest = JsonSerializer.Deserialize<AuthRequest>(request.Body);
             if (authRequest == null || string.IsNullOrEmpty(authRequest.Email) || string.IsNullOrEmpty(authRequest.Password))
-            {
-                return new APIGatewayProxyResponse
-                {
-                    StatusCode = 400,
-                    Body = JsonSerializer.Serialize(new { Message = "Invalid request payload: Email or Password is missing." }),
-                    Headers = new Dictionary<string, string> { { "Content-Type", "application/json" } }
-                };
-            }
+                return _utilService.CreateResponse(HttpStatusCode.BadRequest, "Invalid request payload: Email or Password is missing.");
 
             var initAuthRequest = new InitiateAuthRequest
             {
@@ -54,12 +48,10 @@ public class LoginUser
                 {
                     { "USERNAME", authRequest.Email },
                     { "PASSWORD", authRequest.Password }
-                    //{"SECRET_HASH", await _utilService.ComputeSecretHash(_appClientId, authRequest.Email) }
                 }
             };
 
             var authResponse = await _cognitoClient.InitiateAuthAsync(initAuthRequest);
-
             var tokens = new AuthResponse
             {
                 AccessToken = authResponse.AuthenticationResult.AccessToken,
@@ -75,12 +67,7 @@ public class LoginUser
         catch (AmazonCognitoIdentityProviderException ex)
         {
             context.Logger.LogLine($"Error logging in user: {ex.Message}");
-            return new APIGatewayProxyResponse
-            {
-                StatusCode = 401,
-                Body = JsonSerializer.Serialize(new { Message = "Failed to log in user." }),
-                Headers = new Dictionary<string, string> { { "Content-Type", "application/json" } }
-            };
+            return _utilService.CreateResponse(HttpStatusCode.InternalServerError, "Failed to login user..");
         }
 
     }

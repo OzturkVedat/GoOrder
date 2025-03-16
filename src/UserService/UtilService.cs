@@ -1,7 +1,10 @@
-﻿using Amazon.SimpleSystemsManagement;
+﻿using Amazon.Lambda.APIGatewayEvents;
+using Amazon.SimpleSystemsManagement;
 using Amazon.SimpleSystemsManagement.Model;
+using System.Net;
 using System.Security.Cryptography;
 using System.Text;
+using System.Text.Json;
 using System.Threading.Tasks;
 
 namespace UserService
@@ -14,7 +17,14 @@ namespace UserService
         {
             _ssmClient = ssmClient;
         }
-
+        public APIGatewayProxyResponse CreateResponse(HttpStatusCode statusCode, string message)
+        {
+            return new APIGatewayProxyResponse
+            {
+                StatusCode = (int)statusCode,
+                Body = JsonSerializer.Serialize(new { message })
+            };
+        }
         public async Task<string> GetParameter(string paramName)
         {
             try
@@ -34,20 +44,6 @@ namespace UserService
             }
         }
 
-        public async Task<string> ComputeSecretHash(string clientId, string email)
-        {
-            string meta = email + clientId;
-            byte[] metaBytes = Encoding.UTF8.GetBytes(meta);
-
-            string clientSecret = GetParameter("/goorder/app-client-secret").GetAwaiter().GetResult();
-            byte[] keyBytes = Encoding.UTF8.GetBytes(clientSecret);
-
-            using (var hmac= new HMACSHA256(keyBytes))
-            {
-                byte[] hashBytes = hmac.ComputeHash(metaBytes);
-                return Convert.ToBase64String(hashBytes);
-            }
-        }
-
+        
     }
 }
