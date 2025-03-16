@@ -10,7 +10,7 @@ namespace ProductService.Functions;
 
 public class GetStoreProducts
 {
-    private readonly string _productTableName="Products";
+    private readonly string _productTableName = "Products";
     private readonly IAmazonDynamoDB _dynamoClient;
 
     private readonly UtilService _utilService;
@@ -24,12 +24,13 @@ public class GetStoreProducts
     {
         context.Logger.LogInformation("Processing request to get store products.");
 
-        if ( !request.PathParameters.TryGetValue("storeId", out string storeId) || string.IsNullOrEmpty(storeId))
+        if (!request.PathParameters.TryGetValue("storeId", out string storeId) || string.IsNullOrEmpty(storeId))
             return _utilService.CreateResponse(HttpStatusCode.BadRequest, "Missing or invalid storeId parameter.");
-        
+
         var queryReq = new QueryRequest
         {
             TableName = _productTableName,
+            IndexName= "StoreIdIndex",      // specify GSI
             KeyConditionExpression = "StoreId = :storeId",
             ExpressionAttributeValues = new Dictionary<string, AttributeValue>
             {
@@ -63,5 +64,7 @@ public class GetStoreProducts
             return _utilService.CreateResponse(HttpStatusCode.InternalServerError, "Failed to fetch store products.");
         }
     }
+
+
 }
 
