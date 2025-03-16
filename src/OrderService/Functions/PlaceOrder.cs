@@ -5,6 +5,7 @@ using Amazon.Lambda.Core;
 using Amazon.SimpleNotificationService;
 using Amazon.SimpleSystemsManagement;
 using OrderService.Models;
+using System.Net;
 using System.Text.Json;
 
 // Assembly attribute to enable the Lambda function's JSON input to be converted into a .NET class.
@@ -25,7 +26,7 @@ public class PlaceOrder
     public PlaceOrder()
     {
         _ssmClient = new AmazonSimpleSystemsManagementClient();
-        _snsClient= new AmazonSimpleNotificationServiceClient();
+        _snsClient = new AmazonSimpleNotificationServiceClient();
         _utilService = new UtilService(_ssmClient, _snsClient);
 
         _dynamoClient = new AmazonDynamoDBClient();
@@ -44,53 +45,33 @@ public class PlaceOrder
             context.Logger.LogLine("Received order request: " + request.Body);
 
             var orderReq = JsonSerializer.Deserialize<CreateOrderRequest>(request.Body);
-            var priceResult = await GetTotalPriceFromDb(orderReq.Items, context);
+            var priceResult = await GetTotalPriceFromDb(orderReq.Cart, context);
             if (priceResult is FailureResult priceFail)
-            {
-                return new APIGatewayProxyResponse
-                {
-                    StatusCode = 400,
-                    Body = JsonSerializer.Serialize(new { message = priceFail.Message })
-                };
-            }
+                return _utilService.CreateResponse(HttpStatusCode.InternalServerError, priceFail.Message);
 
             var price = priceResult as SuccessDataResult<decimal>;
             var order = new OrderModel
             {
                 UserId = orderReq.UserId,
-                Items = orderReq.Items,
+                Cart = orderReq.Cart,
                 TotalPrice = price.Data
             };
             var valErrors = ValidateOrder(order);
             if (valErrors.Any())
             {
                 context.Logger.LogError($"Order validation failed: {string.Join(", ", valErrors)}");
-                return new APIGatewayProxyResponse
-                {
-                    StatusCode = 400,
-                    Body = JsonSerializer.Serialize(new { message = "Invalid order", errors = valErrors })
-                };
+                return _utilService.CreateResponse(HttpStatusCode.BadRequest, "Order is not valid.");
             }
 
             var dbResult = await SaveOrderToDb(order, context);
             if (dbResult is FailureResult saveFail)
-            {
-                return new APIGatewayProxyResponse
-                {
-                    StatusCode = 400,
-                    Body = JsonSerializer.Serialize(new { message = saveFail.Message })
-                };
-            }
+                return _utilService.CreateResponse(HttpStatusCode.InternalServerError, saveFail.Message);
+
 
             var paramResult = _utilService.GetParameter("goorder/topic-arn/payment-required", context).GetAwaiter().GetResult();
-            if( paramResult is not SuccessDataResult<string> topicResult)
-            {
-                return new APIGatewayProxyResponse
-                {
-                    StatusCode = 400,
-                    Body = JsonSerializer.Serialize(new { message = "An unexpected error occured" })
-                };
-            }          
+            if (paramResult is not SuccessDataResult<string> topicResult)
+                return _utilService.CreateResponse(HttpStatusCode.InternalServerError, "An unexpected error occured");
+
             var paymentMessage = new
             {
                 OrderId = order.OrderId,
@@ -100,15 +81,10 @@ public class PlaceOrder
             };
             var pubResult = await _utilService.PublishMessageToSns(topicResult.Data, paymentMessage, context);
             if (pubResult.IsSuccess)
-            {
-                return new APIGatewayProxyResponse
-                {
-                    StatusCode = 200,
-                    Body = JsonSerializer.Serialize(new { message = "Order placed successfully" })
-                };
-            }
+                return _utilService.CreateResponse(HttpStatusCode.Created, "Order placed successfully");
+            
             else
-                return new APIGatewayProxyResponse { StatusCode = 400, Body = JsonSerializer.Serialize(new { message = "Failed to process the order." }) };
+                return _utilService.CreateResponse(HttpStatusCode.InternalServerError, "Failed to process the order.");
 
             // process further?
 
@@ -116,11 +92,8 @@ public class PlaceOrder
         catch (Exception ex)
         {
             context.Logger.LogLine($"Unexpected error: {ex.Message}");
-            return new APIGatewayProxyResponse
-            {
-                StatusCode = 500,
-                Body = JsonSerializer.Serialize(new { message = "Internal server error" })
-            };
+            return _utilService.CreateResponse(HttpStatusCode.InternalServerError, "Internal server error" );
+
         }
     }
 
@@ -131,8 +104,8 @@ public class PlaceOrder
         if (string.IsNullOrEmpty(order.UserId))
             errors.Add("UserId is required.");
 
-        if (order.Items == null || !order.Items.Any())
-            errors.Add("At least one item must be included in the order.");
+        if (order.Cart == null || !order.Cart.Any())
+            errors.Add("At least one product must be included in the cart.");
 
         if (order.TotalPrice <= 0)
             errors.Add("TotalPrice must be a positive value.");
@@ -140,11 +113,11 @@ public class PlaceOrder
         return errors;
     }
 
-    private async Task<ResultModel> GetTotalPriceFromDb(Dictionary<string, int> items, ILambdaContext context)
+    private async Task<ResultModel> GetTotalPriceFromDb(Dictionary<string, int> cart, ILambdaContext context)
     {
-        var keys = items.Keys.Select(itemId => new Dictionary<string, AttributeValue>
+        var keys = cart.Keys.Select(prodId => new Dictionary<string, AttributeValue>
         {
-            { "ItemId", new AttributeValue{ S = itemId } }
+            { "ProductId", new AttributeValue{ S = prodId } }
         }).ToList();    // converting to dynamo compatible format
 
         var request = new BatchGetItemRequest
@@ -164,13 +137,13 @@ public class PlaceOrder
             {
                 foreach (var item in response.Responses[_productsTableName])
                 {
-                    var itemId = item["ItemId"].S;
+                    var itemId = item["ProductId"].S;
                     if (item.ContainsKey("Price") && decimal.TryParse(item["Price"].N, out decimal price))
-                        total += price * items[itemId];  // Multiply by quantity
+                        total += price * cart[itemId];  // Multiply by quantity
 
                     else
                     {
-                        context.Logger.Log($"Price not found for item: {itemId}");
+                        context.Logger.Log($"Price not found for product: {itemId}");
                         return new FailureResult("Invalid operation. Please check your cart.");
                     }
                 }
@@ -194,7 +167,7 @@ public class PlaceOrder
                 { "UserId", new AttributeValue { S = order.UserId } },
                 { "TotalPrice", new AttributeValue { N = order.TotalPrice.ToString() } },
                 { "CreatedAt", new AttributeValue { S = order.CreatedAt } },
-                { "Items", new AttributeValue { S = JsonSerializer.Serialize(order.Items) } }
+                { "Cart", new AttributeValue { S = JsonSerializer.Serialize(order.Cart) } }
             };
             var request = new PutItemRequest
             {

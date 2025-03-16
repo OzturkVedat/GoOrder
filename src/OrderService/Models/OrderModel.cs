@@ -10,7 +10,7 @@ namespace OrderService.Models
     {
         public string OrderId { get; set; } = Guid.NewGuid().ToString();
         public string UserId { get; set; }
-        public Dictionary<string, int> Items { get; set; }  // ID and amount
+        public Dictionary<string, int> Cart { get; set; }  // ID and amount
         public decimal TotalPrice { get; set; }
         public string Status { get; set; } = "Pending";
         public string CreatedAt { get; set; }= DateTime.UtcNow.ToString("o");   // iso 8601 format
@@ -19,6 +19,6 @@ namespace OrderService.Models
     public class CreateOrderRequest
     {
         public string UserId { get; set; }
-        public Dictionary<string, int> Items { get; set; }
+        public Dictionary<string, int> Cart { get; set; }
     }
 }

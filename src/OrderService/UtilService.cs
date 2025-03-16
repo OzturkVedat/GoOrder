@@ -10,6 +10,8 @@ using Amazon.Lambda.Core;
 using OrderService.Models;
 using System.Text.Json;
 using Amazon.SimpleNotificationService.Model;
+using Amazon.Lambda.APIGatewayEvents;
+using System.Net;
 
 namespace OrderService
 {
@@ -23,6 +25,15 @@ namespace OrderService
         {
             _ssmClient = ssmClient;
             _snsClient = snsClient;
+        }
+
+        public APIGatewayProxyResponse CreateResponse(HttpStatusCode statusCode, string message)
+        {
+            return new APIGatewayProxyResponse
+            {
+                StatusCode = (int)statusCode,
+                Body = JsonSerializer.Serialize(new { message })
+            };
         }
 
         public async Task<ResultModel> GetParameter(string paramName, ILambdaContext context)
@@ -66,5 +77,7 @@ namespace OrderService
                 return new FailureResult("Error publishing message to SNS.");
             }
         }
+
+
     }
 }
