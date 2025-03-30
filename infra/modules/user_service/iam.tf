@@ -16,10 +16,19 @@ resource "aws_iam_role" "user_lambda_exe_role" {
 resource "aws_iam_role_policy_attachment" "policy_attachments" {
   for_each = toset([
     "arn:aws:iam::aws:policy/CloudWatchLogsFullAccess",
-    "arn:aws:iam::aws:policy/AmazonSSMFullAccess",
     "arn:aws:iam::aws:policy/AmazonCognitoPowerUser"
   ])
 
   role       = aws_iam_role.user_lambda_exe_role.name
   policy_arn = each.value
+}
+
+resource "aws_iam_role_policy_attachment" "dynamo_crud" {
+  role       = aws_iam_role.user_lambda_exe_role.name
+  policy_arn = var.dynamodb_crud_policy_arn
+}
+
+resource "aws_iam_role_policy_attachment" "ssm_read_params" {
+  role       = aws_iam_role.user_lambda_exe_role.name
+  policy_arn = var.ssm_read_param_policy_arn
 }

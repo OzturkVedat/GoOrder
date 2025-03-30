@@ -1,14 +1,15 @@
 terraform {
   backend "s3" {
-    bucket  = "goorder-tfstate-bucket"
-    key     = "terraform.tfstate"
-    region  = "eu-north-1"
-    encrypt = true
+    bucket       = "goorder-tfstate-bucket"
+    key          = "terraform.tfstate"
+    region       = "eu-north-1"
+    encrypt      = true
+    use_lockfile = true
   }
 }
 
 provider "aws" {
-  # credentials will be fetched from env automatically
+  # creds will be fetched from env
   #profile = "default"
   region = var.aws_region
 }
@@ -39,6 +40,9 @@ module "user_service" {
 
   apigw_id      = module.network.apigw_id
   apigw_exe_arn = module.network.apigw_exe_arn
+
+  ssm_read_param_policy_arn = aws_iam_policy.ssm_read_goorder_params.arn
+  dynamodb_crud_policy_arn  = aws_iam_policy.dynamodb_table_crud.arn
 }
 
 module "product_service" {
@@ -53,4 +57,7 @@ module "order_service" {
 
   apigw_id      = module.network.apigw_id
   apigw_exe_arn = module.network.apigw_exe_arn
+
+  ssm_read_param_policy_arn = aws_iam_policy.ssm_read_goorder_params.arn
+  dynamodb_crud_policy_arn  = aws_iam_policy.dynamodb_table_crud.arn
 }

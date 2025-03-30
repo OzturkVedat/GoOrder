@@ -8,28 +8,29 @@ using OrderService.Models;
 using System.Net;
 using System.Text.Json;
 
-// Assembly attribute to enable the Lambda function's JSON input to be converted into a .NET class.
 [assembly: LambdaSerializer(typeof(Amazon.Lambda.Serialization.SystemTextJson.DefaultLambdaJsonSerializer))]
 
 namespace OrderService.Functions;
 
 public class PlaceOrder
 {
-    private readonly IAmazonSimpleNotificationService _snsClient;
-    private readonly IAmazonSimpleSystemsManagement _ssmClient;
     private readonly UtilService _utilService;
 
-
     private readonly IAmazonDynamoDB _dynamoClient;
-    private readonly string _productsTableName = "Products";
-    private readonly string _ordersTableName = "Orders";
-    public PlaceOrder()
-    {
-        _ssmClient = new AmazonSimpleSystemsManagementClient();
-        _snsClient = new AmazonSimpleNotificationServiceClient();
-        _utilService = new UtilService(_ssmClient, _snsClient);
+    private readonly string _dynamoTableName;
 
-        _dynamoClient = new AmazonDynamoDBClient();
+    public PlaceOrder() : this(
+        new UtilService(new AmazonSimpleSystemsManagementClient(), new AmazonSimpleNotificationServiceClient()),
+        new AmazonDynamoDBClient()
+        )
+    { }
+    public PlaceOrder(UtilService utilService, IAmazonDynamoDB dynamoClient)
+    {
+        _utilService = utilService;
+
+        _dynamoClient = dynamoClient;
+        _dynamoTableName = "GoOrderTable";
+
     }
 
     /// <summary>
@@ -67,8 +68,7 @@ public class PlaceOrder
             if (dbResult is FailureResult saveFail)
                 return _utilService.CreateResponse(HttpStatusCode.InternalServerError, saveFail.Message);
 
-
-            var paramResult = _utilService.GetParameter("/goorder/topic-arn/payment-required", context).GetAwaiter().GetResult();
+            var paramResult = await _utilService.GetParameter("/goorder/topic-arn/payment-required", context);
             if (paramResult is not SuccessDataResult<string> topicResult)
                 return _utilService.CreateResponse(HttpStatusCode.InternalServerError, "An unexpected error occured");
 
@@ -81,8 +81,8 @@ public class PlaceOrder
             };
             var pubResult = await _utilService.PublishMessageToSns(topicResult.Data, paymentMessage, context);
             if (pubResult.IsSuccess)
-                return _utilService.CreateResponse(HttpStatusCode.Created, "Order placed successfully");
-            
+                return _utilService.CreateResponse(HttpStatusCode.Created, "Order placed successfully. Payment is processing...");
+
             else
                 return _utilService.CreateResponse(HttpStatusCode.InternalServerError, "Failed to process the order.");
 
@@ -92,7 +92,7 @@ public class PlaceOrder
         catch (Exception ex)
         {
             context.Logger.LogLine($"Unexpected error: {ex.Message}");
-            return _utilService.CreateResponse(HttpStatusCode.InternalServerError, "Internal server error" );
+            return _utilService.CreateResponse(HttpStatusCode.InternalServerError, "Internal server error");
 
         }
     }
@@ -117,43 +117,48 @@ public class PlaceOrder
     {
         var keys = cart.Keys.Select(prodId => new Dictionary<string, AttributeValue>
         {
-            { "ProductId", new AttributeValue{ S = prodId } }
-        }).ToList();    // converting to dynamo compatible format
+            { "PK", new AttributeValue{ S = $"PRODUCT#{prodId}" } },
+            { "SK", new AttributeValue{ S = "METADATA" } }
+        }).ToList();
 
         var request = new BatchGetItemRequest
         {
             RequestItems = new Dictionary<string, KeysAndAttributes>
-            {
-                { _productsTableName, new KeysAndAttributes { Keys = keys } }
-            }
+            { { _dynamoTableName, new KeysAndAttributes { Keys = keys } } }
         };
 
         try
         {
-            var response = await _dynamoClient.BatchGetItemAsync(request);      // fetch the batch and process
+            var response = await _dynamoClient.BatchGetItemAsync(request);
             decimal total = 0;
 
-            if (response.Responses.ContainsKey(_productsTableName))
+            if (response.Responses.TryGetValue(_dynamoTableName, out var items))
             {
-                foreach (var item in response.Responses[_productsTableName])
+                foreach (var item in items)
                 {
-                    var itemId = item["ProductId"].S;
-                    if (item.ContainsKey("Price") && decimal.TryParse(item["Price"].N, out decimal price))
-                        total += price * cart[itemId];  // Multiply by quantity
+                    var itemId = item["PK"].S.Replace("PRODUCT#", "");      // remove the prefix
 
+                    if (item.TryGetValue("Price", out var priceAttr) && decimal.TryParse(priceAttr.N, out var price))
+                    {
+                        if (cart.TryGetValue(itemId, out var quantity))
+                            total += price * quantity;
+                        else
+                            context.Logger.LogLine($"Product ID {itemId} not found in cart.");
+                    }
                     else
                     {
-                        context.Logger.Log($"Price not found for product: {itemId}");
+                        context.Logger.Log($"Price not found or invalid for product: {itemId}");
                         return new FailureResult("Invalid operation. Please check your cart.");
                     }
                 }
+                return new SuccessDataResult<decimal>(total);
             }
-            return new SuccessDataResult<decimal>(total);
+            return new FailureResult("No products found.");
         }
         catch (AmazonDynamoDBException ex)
         {
             context.Logger.LogError($"Dynamo exception thrown: {ex}");
-            return new FailureResult("An error occured while processing your order. Please try again later.");
+            return new FailureResult("An error occurred while processing your order. Please try again later.");
         }
     }
 
@@ -163,15 +168,15 @@ public class PlaceOrder
         {
             var item = new Dictionary<string, AttributeValue>
             {
-                { "OrderId", new AttributeValue { S = order.OrderId } },
-                { "UserId", new AttributeValue { S = order.UserId } },
+                { "PK", new AttributeValue { S = order.PK } },  // userid
+                { "SK", new AttributeValue { S = order.SK } },  // orderid
                 { "TotalPrice", new AttributeValue { N = order.TotalPrice.ToString() } },
                 { "CreatedAt", new AttributeValue { S = order.CreatedAt } },
                 { "Cart", new AttributeValue { S = JsonSerializer.Serialize(order.Cart) } }
             };
             var request = new PutItemRequest
             {
-                TableName = _ordersTableName,
+                TableName = _dynamoTableName,
                 Item = item
             };
             await _dynamoClient.PutItemAsync(request);

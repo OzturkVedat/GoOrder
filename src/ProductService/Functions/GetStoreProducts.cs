@@ -4,67 +4,64 @@ using Amazon.Lambda.APIGatewayEvents;
 using Amazon.Lambda.Core;
 using ProductService.Models;
 using System.Net;
-using System.Text.Json;
 
 namespace ProductService.Functions;
 
 public class GetStoreProducts
 {
-    private readonly string _productTableName = "Products";
+    private readonly string _dynamoTableName = "GoOrderTable";
     private readonly IAmazonDynamoDB _dynamoClient;
 
     private readonly UtilService _utilService;
-    public GetStoreProducts()
+
+    public GetStoreProducts() : this(new AmazonDynamoDBClient(), new UtilService()) { }
+
+    public GetStoreProducts(IAmazonDynamoDB dynamoClient, UtilService utilService)
     {
-        _dynamoClient = new AmazonDynamoDBClient();
-        _utilService = new UtilService();
+        _dynamoClient = dynamoClient;
+        _utilService = utilService;
     }
 
     public async Task<APIGatewayProxyResponse> FunctionHandler(APIGatewayProxyRequest request, ILambdaContext context)
     {
-        context.Logger.LogInformation("Processing request to get store products.");
+        context.Logger.LogInformation("Getting products for a store.");
 
-        if (!request.PathParameters.TryGetValue("storeId", out string storeId) || string.IsNullOrEmpty(storeId))
-            return _utilService.CreateResponse(HttpStatusCode.BadRequest, "Missing or invalid storeId parameter.");
-
-        var queryReq = new QueryRequest
+        if (!request.PathParameters.TryGetValue("storeId", out var storeId) || string.IsNullOrEmpty(storeId))
         {
-            TableName = _productTableName,
-            IndexName= "StoreIdIndex",      // specify GSI
-            KeyConditionExpression = "StoreId = :storeId",
+            return _utilService.CreateResponse(HttpStatusCode.BadRequest, "Missing or invalid storeId.");
+        }
+
+        var queryRequest = new QueryRequest
+        {
+            TableName = _dynamoTableName,
+            KeyConditionExpression = "PK = :pk AND begins_with(SK, :skPrefix)",
             ExpressionAttributeValues = new Dictionary<string, AttributeValue>
             {
-                { ":storeId", new AttributeValue{ S = storeId} }
+                { ":pk", new AttributeValue { S = $"STORE#{storeId}" } },
+                { ":skPrefix", new AttributeValue { S = "PRODUCT#" } }
             }
         };
-
         try
         {
-            var queryRes = await _dynamoClient.QueryAsync(queryReq);
-            var prods = queryRes.Items.Select(item => new ProductModel
+            var response = await _dynamoClient.QueryAsync(queryRequest);
+
+            var products = response.Items.Select(item => new GetProductDto
             {
-                ProductId = item["ProductId"].S,
+                ProductId = item["SK"].S.Replace("PRODUCT#", ""),
                 ProductName = item["ProductName"].S,
-                Price = decimal.Parse(item["Price"].N),
-                Category = item.ContainsKey("Category") ? item["Category"].S : "Uncategorized",
-                Description = item.ContainsKey("Description") ? item["Description"].S : string.Empty,
-                StoreId = item["StoreId"].S
+                Description = item.ContainsKey("Description") ? item["Description"].S : null,
+                Category = item.ContainsKey("Category") ? item["Category"].S : null,
+                Price = decimal.Parse(item["Price"].N)
             }).ToList();
 
-            return new APIGatewayProxyResponse
-            {
-                StatusCode = (int)HttpStatusCode.OK,
-                Body = JsonSerializer.Serialize(prods),
-                Headers = new Dictionary<string, string> { { "Content-Type", "application/json" } }
-            };
+            return _utilService.CreateDataResponse(HttpStatusCode.OK, products);
         }
-        catch (Exception ex)
+        catch (AmazonDynamoDBException ex)
         {
-            context.Logger.LogError($"Error fetching products: {ex.Message}");
-            return _utilService.CreateResponse(HttpStatusCode.InternalServerError, "Failed to fetch store products.");
+            context.Logger.LogError($"DynamoDb exception: {ex.Message}");
+            return _utilService.CreateResponse(HttpStatusCode.InternalServerError, "Failed to get products.");
         }
     }
-
 
 }
 

@@ -1,11 +1,6 @@
 ﻿using Amazon.Lambda.APIGatewayEvents;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Net;
-using System.Text;
 using System.Text.Json;
-using System.Threading.Tasks;
 
 namespace ProductService
 {
@@ -19,5 +14,19 @@ namespace ProductService
                 Body = JsonSerializer.Serialize(new { message })
             };
         }
+
+        public APIGatewayProxyResponse CreateDataResponse<T>(HttpStatusCode statusCode, T data)
+        {
+            return new APIGatewayProxyResponse
+            {
+                StatusCode = (int)statusCode,
+                Body = JsonSerializer.Serialize(data),
+                Headers = new Dictionary<string, string>
+                {
+                    { "Content-Type", "application/json" }
+                }
+            };
+        }
+
     }
 }

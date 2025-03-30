@@ -13,7 +13,7 @@ resource "aws_cognito_user_pool" "user_pool" {
   }
 
   admin_create_user_config {
-    allow_admin_create_user_only = false # Users can sign up themselves
+    allow_admin_create_user_only = false # users can sign up themselves
   }
 
   schema {

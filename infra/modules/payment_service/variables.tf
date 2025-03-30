@@ -4,14 +4,16 @@ variable "lambda_bucket_name" {
   default     = "goorder-lambda-bucket"
 }
 
-variable "user_lambda_bucket_key" {
+variable "payment_lambda_bucket_key" {
   description = "Object key in the bucket (zip)"
   type        = string
-  default     = "user_lambda.zip"
+  default     = "payment_lambda.zip"
 }
-
-variable "apigw_id" {}
-variable "apigw_exe_arn" {}
 
 variable "ssm_read_param_policy_arn" {}
 variable "dynamodb_crud_policy_arn" {}
+
+variable "payment_queue_arn" {}
+variable "payment_req_topic_arn" {}
+variable "pay_conf_topic_arn" {}
+variable "pay_fail_topic_arn" {}

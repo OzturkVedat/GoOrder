@@ -12,3 +12,6 @@ variable "order_lambda_bucket_key" {
 
 variable "apigw_id" {}
 variable "apigw_exe_arn" {}
+
+variable "ssm_read_param_policy_arn" {}
+variable "dynamodb_crud_policy_arn" {}

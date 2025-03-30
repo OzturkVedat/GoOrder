@@ -3,29 +3,27 @@ using Amazon.CognitoIdentityProvider.Model;
 using Amazon.Lambda.APIGatewayEvents;
 using Amazon.Lambda.Core;
 using Amazon.SimpleSystemsManagement;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Net;
-using System.Text;
 using System.Text.Json;
-using System.Threading.Tasks;
 using UserService.Dto;
 
 namespace UserService.Functions;
 
 public class ConfirmUser
 {
-    private readonly AmazonCognitoIdentityProviderClient _cognitoClient;
     private readonly UtilService _utilService;
+
+    private readonly IAmazonCognitoIdentityProvider _cognitoClient;
     private readonly string _appClientId;
 
-    public ConfirmUser()
-    {
-        _cognitoClient = new AmazonCognitoIdentityProviderClient();
+    public ConfirmUser() : this(new AmazonCognitoIdentityProviderClient(), new UtilService(new AmazonSimpleSystemsManagementClient()))
+    { }
 
-        var ssmClient = new AmazonSimpleSystemsManagementClient();
-        _utilService = new UtilService(ssmClient);
+    public ConfirmUser(IAmazonCognitoIdentityProvider cognitoClient, UtilService utilService)
+    {
+        _utilService = utilService;
+
+        _cognitoClient = cognitoClient;
         _appClientId = _utilService.GetParameter("/goorder/app-client-id").GetAwaiter().GetResult();
     }
 
@@ -43,8 +41,7 @@ public class ConfirmUser
         {
             var confirmRequest = JsonSerializer.Deserialize<ConfirmRequest>(request.Body);
             if (confirmRequest == null || string.IsNullOrEmpty(confirmRequest.Email) || string.IsNullOrEmpty(confirmRequest.ConfirmationCode))
-                return _utilService.CreateResponse(HttpStatusCode.BadRequest, "Invalid request payload: Email or Confirmation Code is missing.");
-            
+                return _utilService.CreateResponse(HttpStatusCode.BadRequest, "Invalid request: Email or Confirmation Code is missing.");
 
             var cognitoRequest = new ConfirmSignUpRequest
             {

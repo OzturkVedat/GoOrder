@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 
 namespace OrderService.Models
@@ -14,6 +15,11 @@ namespace OrderService.Models
         public decimal TotalPrice { get; set; }
         public string Status { get; set; } = "Pending";
         public string CreatedAt { get; set; }= DateTime.UtcNow.ToString("o");   // iso 8601 format
+
+        [JsonIgnore]
+        public string PK => $"USER#{UserId}";      // fetch orders by user (for calculating the cart)
+        [JsonIgnore]
+        public string SK => $"ORDER#{OrderId}";    // sort orders
     }
 
     public class CreateOrderRequest

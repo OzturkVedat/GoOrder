@@ -1,51 +1,40 @@
-resource "aws_dynamodb_table" "orders" {
-  name         = "Orders"
+// using single-table design
+resource "aws_dynamodb_table" "goorder" {
+  name         = "GoOrderTable"
   billing_mode = "PAY_PER_REQUEST"
-  hash_key     = "OrderId" # PK
+  hash_key     = "PK"
+  range_key    = "SK"
 
   attribute {
-    name = "OrderId"
+    name = "PK"
     type = "S"
   }
   attribute {
-    name = "UserId"
+    name = "SK"
+    type = "S"
+  }
+
+  attribute {
+    name = "GSI1PK"
+    type = "S"
+  }
+  attribute {
+    name = "GSI1SK"
     type = "S"
   }
 
   global_secondary_index {
-    name            = "UserIdIndex" # for querying orders by user
-    hash_key        = "UserId"
+    name            = "CategoryIndex"
+    hash_key        = "GSI1PK"
+    range_key       = "GSI1SK"
     projection_type = "ALL"
-  }
-
-  tags = {
-    Name       = "GoOrder_OrdersTable"
-    Enviroment = "dev"
   }
 }
 
-resource "aws_dynamodb_table" "products" {
-  name         = "Products"
-  billing_mode = "PAY_PER_REQUEST"
-  hash_key     = "ProductId"
+resource "null_resource" "seed_dynamodb" {
+  depends_on = [aws_dynamodb_table.goorder]
 
-  attribute {
-    name = "ProductId"
-    type = "S"
-  }
-  attribute {
-    name = "StoreId"
-    type = "S"
-  }
-
-  global_secondary_index {
-    name            = "StoreIdIndex"
-    hash_key        = "StoreId"
-    projection_type = "ALL"
-  }
-
-  tags = {
-    Name       = "GoOrder_ProductsTable"
-    Enviroment = "dev"
+  provisioner "local-exec" {
+    command = "python3 scripts/seed_dynamo.py"
   }
 }

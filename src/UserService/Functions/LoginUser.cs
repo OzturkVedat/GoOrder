@@ -11,16 +11,19 @@ namespace UserService.Functions;
 
 public class LoginUser
 {
-    private readonly AmazonCognitoIdentityProviderClient _cognitoClient;
     private readonly UtilService _utilService;
+
+    private readonly IAmazonCognitoIdentityProvider _cognitoClient;
     private readonly string _appClientId;
 
-    public LoginUser()
-    {
-        _cognitoClient = new AmazonCognitoIdentityProviderClient();
+    public LoginUser() : this(new AmazonCognitoIdentityProviderClient(), new UtilService(new AmazonSimpleSystemsManagementClient()))
+    { }
 
-        var _ssmClient = new AmazonSimpleSystemsManagementClient();
-        _utilService = new UtilService(_ssmClient);
+    public LoginUser(IAmazonCognitoIdentityProvider cognitoClient, UtilService utilService)
+    {
+        _utilService = utilService;
+
+        _cognitoClient = cognitoClient;
         _appClientId = _utilService.GetParameter("/goorder/app-client-id").GetAwaiter().GetResult();
     }
 

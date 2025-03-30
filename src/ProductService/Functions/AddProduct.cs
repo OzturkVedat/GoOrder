@@ -12,15 +12,17 @@ namespace ProductService.Functions;
 
 public class AddProduct
 {
-    private readonly string _productsTableName = "Products";
+    private readonly string _dynamoTableName = "GoOrderTable";
     private readonly IAmazonDynamoDB _dynamoClient;
 
     private readonly UtilService _utilService;
 
-    public AddProduct()
+    public AddProduct() : this(new AmazonDynamoDBClient(), new UtilService()) { }
+
+    public AddProduct(IAmazonDynamoDB dynamoClient, UtilService utilService)
     {
-        _dynamoClient = new AmazonDynamoDBClient();
-        _utilService= new UtilService();
+        _dynamoClient = dynamoClient;
+        _utilService = utilService;
     }
 
     /// <summary>
@@ -43,24 +45,24 @@ public class AddProduct
         {
             return _utilService.CreateResponse(HttpStatusCode.BadRequest, "Invalid JSON format.");
         }
-
+        var productId = Guid.NewGuid().ToString();
         var putItemReq = new PutItemRequest
         {
-            TableName = _productsTableName,
+            TableName = _dynamoTableName,
             Item = new Dictionary<string, AttributeValue>
             {
-                { "ProductId", new AttributeValue { S = Guid.NewGuid().ToString() } },
+                { "PK", new AttributeValue { S = $"STORE#{dto.StoreId}" } },
+                { "SK", new AttributeValue { S = $"PRODUCT#{productId}" } },
                 { "ProductName", new AttributeValue { S = dto.ProductName } },
+                { "Description", new AttributeValue { S = dto.Description ?? string.Empty } },
                 { "Price", new AttributeValue { N = dto.Price.ToString() } },
                 { "Category", new AttributeValue { S = dto.Category ?? "Uncategorized" } },
-                { "Description", new AttributeValue { S = dto.Description ?? string.Empty } },
-                { "StoreId", new AttributeValue { S = dto.StoreId } }
             }
         };
         try
         {
             await _dynamoClient.PutItemAsync(putItemReq);
-            return _utilService.CreateResponse(HttpStatusCode.Created, "Product added successfully.");
+            return _utilService.CreateResponse(HttpStatusCode.Created, $"Product added with the ID: {productId}");
         }
         catch (AmazonDynamoDBException ex)
         {
@@ -68,6 +70,4 @@ public class AddProduct
             return _utilService.CreateResponse(HttpStatusCode.InternalServerError, "Internal server error.");
         }
     }
-
-    
 }

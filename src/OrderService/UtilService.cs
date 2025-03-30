@@ -52,7 +52,7 @@ namespace OrderService
             }
             catch (AmazonSimpleSystemsManagementException ex)
             {
-                context.Logger.LogError($"Error fetching {paramName} from SSM", ex);
+                context.Logger.LogError($"Error fetching param from SSM: ", ex);
                 return new FailureResult("Error while fetching SSM parameter.");
             }
         }
@@ -68,11 +68,11 @@ namespace OrderService
                     TopicArn = topicArn,
                     Message = snsMessage
                 };
-                var response= await _snsClient.PublishAsync(pubRequest);
+                var response = await _snsClient.PublishAsync(pubRequest);
                 context.Logger.Log($"Message published to SNS with MessageId: {response.MessageId}");
                 return new SuccessResult("Message published successfully.");
             }
-            catch (AmazonSimpleNotificationServiceException ex) 
+            catch (AmazonSimpleNotificationServiceException ex)
             {
                 context.Logger.LogError($"Error publishing message to SNS", ex);
                 return new FailureResult("Error publishing message to SNS.");
