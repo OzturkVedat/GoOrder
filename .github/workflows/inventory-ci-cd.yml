@@ -1,4 +1,4 @@
-name: Inventory Lambdas CI
+name: Inventory Lambdas CI/CD
 
 on:
   workflow_dispatch:
@@ -9,7 +9,7 @@ on:
       - "src/inventory/**"
 
 jobs:
-  deploy_changed:
+  deploy_all:
     runs-on: ubuntu-latest
 
     steps:
@@ -21,19 +21,6 @@ jobs:
         with:
           node-version: "20"
 
-      - name: Detect changed lambdas
-        id: detect
-        run: |
-          echo "Changed lambdas:"
-          git fetch --depth=0 origin master
-
-          git diff --name-only origin/master HEAD \
-            | grep '^src/inventory/' \
-            | awk -F/ '{print $3}' | sort -u > changed.txt || true
-
-          cat changed.txt
-          echo "changed=$(paste -sd, changed.txt)" >> $GITHUB_OUTPUT
-
       - name: Set up AWS creds
         uses: aws-actions/configure-aws-credentials@v4
         with:
@@ -41,26 +28,18 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: ${{ secrets.AWS_REGION }}
 
-      - name: Zip and deploy changed lambdas
-        if: steps.detect.outputs.changed != ''
+      - name: Zip and deploy all inventory lambdas
         run: |
           set -e
-          IFS=',' read -ra CHANGED <<< "${{ steps.detect.outputs.changed }}"
-          for lambda in "${CHANGED[@]}"; do
+          for dir in src/inventory/*/ ; do
+            lambda=$(basename "$dir")
             echo "Zipping and deploying $lambda..."
-            
-            cd "src/inventory/$lambda"
-            zip -r "../../../inventory-$lambda.zip" .
-            cd - > /dev/null
+
+            zip -r "inventory-$lambda.zip" "$dir"
 
             aws lambda update-function-code \
-              --function-name "$lambda" \
+              --function-name "inventory-$lambda" \
               --zip-file "fileb://inventory-$lambda.zip"
-            
-            if [ $? -ne 0 ]; then
-              echo "Failed to deploy inventory-$lambda"
-              exit 1
-            fi    
 
-            echo "inventory-$lambda deployed "
+            echo "inventory-$lambda deployed"
           done
