@@ -25,9 +25,12 @@ jobs:
         id: detect
         run: |
           echo "Changed lambdas:"
-          git diff --name-only ${{github.event.before}} ${{github.sha}} \
+          git fetch --depth=2 origin master
+
+          git diff --name-only origin/master HEAD \
             | grep '^src/inventory/' \
-            | awk F\ '{print $3}' | sort -u > changed.txt || true
+            | awk -F/ '{print $3}' | sort -u > changed.txt || true
+
           cat changed.txt
           echo "changed=$(paste -sd, changed.txt)" >> $GITHUB_OUTPUT
 
