@@ -1,0 +1,55 @@
+name: Inventory Lambdas CI
+
+on:
+  push:
+    branches: [master]
+    paths:
+      - "src/inventory/**"
+
+jobs:
+  deploy-changed:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Detect changed lambdas
+        id: detect
+        run: |
+          echo "Changed lambdas:"
+          git diff --name-only ${{github.event.before}} ${{github.sha}} \
+            | grep '^src/inventory/' \
+            | awk F\ '{print $3}' | sort -u > changed.txt || true
+          cat changed.txt
+          echo "changed=$(paste -sd, changed.txt)" >> $GITHUB_OUTPUT
+
+      - name: Set up AWS creds
+        uses: aws-actions/configure-aws-credentials@v3
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ secrets.AWS_REGION }}
+
+      - name: Zip and deploy changed lambdas
+        if: steps.detect.outputs.changed != ''
+        run: |
+          IFS=',' read -ra CHANGED <<< "${{ steps.detect.outputs.changed }}"
+          for lambda in "${CHANGED[@]}"; do
+            echo "Zipping and deploying $lambda..."
+            
+            cd "src/inventory/$lambda"
+            zip -r "../../../inventory-$lambda.zip" .
+            cd - > /dev/null
+
+            aws lambda update-function-code \
+              --function-name "$lambda" \
+              --zip-file "fileb://inventory-$lambda.zip"
+
+            echo "inventory-$lambda deployed "
+          done
