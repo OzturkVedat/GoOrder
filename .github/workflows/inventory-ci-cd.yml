@@ -9,7 +9,7 @@ on:
       - "src/inventory/**"
 
 jobs:
-  deploy-changed:
+  deploy_changed:
     runs-on: ubuntu-latest
 
     steps:
@@ -25,7 +25,7 @@ jobs:
         id: detect
         run: |
           echo "Changed lambdas:"
-          git fetch --depth=2 origin master
+          git fetch --depth=0 origin master
 
           git diff --name-only origin/master HEAD \
             | grep '^src/inventory/' \
@@ -44,6 +44,7 @@ jobs:
       - name: Zip and deploy changed lambdas
         if: steps.detect.outputs.changed != ''
         run: |
+          set -e
           IFS=',' read -ra CHANGED <<< "${{ steps.detect.outputs.changed }}"
           for lambda in "${CHANGED[@]}"; do
             echo "Zipping and deploying $lambda..."
@@ -55,6 +56,11 @@ jobs:
             aws lambda update-function-code \
               --function-name "$lambda" \
               --zip-file "fileb://inventory-$lambda.zip"
+            
+            if [ $? -ne 0 ]; then
+              echo "Failed to deploy inventory-$lambda"
+              exit 1
+            fi    
 
             echo "inventory-$lambda deployed "
           done
