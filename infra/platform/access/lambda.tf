@@ -15,6 +15,7 @@ resource "aws_iam_role" "lambda_role" {
   })
 }
 
+data "aws_caller_identity" "current" {}
 locals {
   account_id   = data.aws_caller_identity.current.account_id
   ssm_resource = "arn:aws:ssm:${var.aws_region}:${local.account_id}:parameter/${var.parameter_path_prefix}*"
