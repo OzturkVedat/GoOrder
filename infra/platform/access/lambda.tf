@@ -15,6 +15,11 @@ resource "aws_iam_role" "lambda_role" {
   })
 }
 
+locals {
+  account_id   = data.aws_caller_identity.current.account_id
+  ssm_resource = "arn:aws:ssm:${var.aws_region}:${local.account_id}:parameter/${var.parameter_path_prefix}*"
+}
+
 resource "aws_iam_policy" "lambda_ssm_dynamo_policy" {
   name        = "lambda_ssm_dynamo_policy"
   description = "Policy for Lambda to access SSM Parameter Store and DynamoDB"
@@ -29,7 +34,7 @@ resource "aws_iam_policy" "lambda_ssm_dynamo_policy" {
           "ssm:GetParameters",
           "ssm:GetParametersByPath"
         ]
-        Resource = "arn:aws:ssm:${var.aws_region}:${data.aws_caller_identity.current.account_id}:parameter/${var.parameter_path_prefix}*"
+        Resource = local.ssm_resource
       },
       {
         Sid    = "DynamoDBAccess"
