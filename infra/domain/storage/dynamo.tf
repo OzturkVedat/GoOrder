@@ -31,10 +31,3 @@ resource "aws_dynamodb_table" "goorder" {
   }
 }
 
-resource "null_resource" "seed_dynamodb" {
-  depends_on = [aws_dynamodb_table.goorder]
-
-  provisioner "local-exec" {
-    command = "python3 scripts/seed_dynamo.py"
-  }
-}
