@@ -1,4 +1,4 @@
-name: Inventory Lambdas CI/CD
+name: Inventory Lambdas CI
 
 on:
   workflow_dispatch:
@@ -9,8 +9,11 @@ on:
       - "src/inventory/**"
 
 jobs:
-  deploy_all:
+  upload_lambdas:
     runs-on: ubuntu-latest
+    env:
+      AWS_REGION: ${{secrets.AWS_REGION}}
+      BUCKET_NAME: goorder-lambda-bucket
 
     steps:
       - name: Checkout Code
@@ -28,18 +31,18 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: ${{ secrets.AWS_REGION }}
 
-      - name: Zip and deploy all inventory lambdas
+      - name: Zip each Lambda
         run: |
-          set -e
+          mkdir -p build
           for dir in src/inventory/*/ ; do
             lambda=$(basename "$dir")
-            echo "Zipping and deploying $lambda..."
+            zip -r "build/inventory-$lambda.zip" "$dir"
+          done
 
-            zip -r "inventory-$lambda.zip" "$dir"
-
-            aws lambda update-function-code \
-              --function-name "inventory-$lambda" \
-              --zip-file "fileb://inventory-$lambda.zip"
-
-            echo "inventory-$lambda deployed"
+      - name: Upload to S3
+        run: |
+          for zip in build/*.zip; do
+            key="inventory/${GITHUB_SHA}/$(basename $zip)"
+            echo "Uploading $zip to s3://$BUCKET_NAME/$key"
+            aws s3 cp "$zip" "s3://$BUCKET_NAME/$key"
           done

@@ -35,7 +35,8 @@ jobs:
 
       - name: Terraform Plan
         run: terraform plan
-        continue-on-error: true # ensure workflow doesn't fail if no changes are detected
+        id: plan
 
       - name: Terraform Apply
+        if: success() && steps.plan.outcome == 'success'
         run: terraform apply -auto-approve
