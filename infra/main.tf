@@ -8,8 +8,6 @@ terraform {
 }
 
 provider "aws" {
-  # creds will be fetched from env
-  #profile = "default"
   region = var.aws_region
 }
 
@@ -41,53 +39,15 @@ module "access" {
   parameter_path_prefix = var.parameter_path_prefix
 }
 
+module "inventory_service" {
+  source = "./services/inventory"
 
-module "user_service" {
-  source = "./services/user"
+  apigw_id          = module.network.apigw_id
+  apigw_exe_arn     = module.network.apigw_exe_arn
+  dynamo_table_name = module.storage.dynamo_table_name
 
-  apigw_id      = module.network.apigw_id
-  apigw_exe_arn = module.network.apigw_exe_arn
-
-  lambda_exec_role_arn = module.security.lambda_exec_role_arn
-  lambda_mem_size      = var.lambda_default_mem
+  lambda_bucket_name   = var.lambda_bucket_name
+  lambda_memory        = var.lambda_default_mem
   lambda_timeout       = var.lambda_default_timeout
-}
-
-module "product_service" {
-  source = "./services/product"
-
-  apigw_id      = module.network.apigw_id
-  apigw_exe_arn = module.network.apigw_exe_arn
-
-  lambda_exec_role_arn = module.security.lambda_exec_role_arn
-  lambda_mem_size      = var.lambda_default_mem
-  lambda_timeout       = var.lambda_default_timeout
-}
-
-module "order_service" {
-  source = "./services/order"
-
-  apigw_id      = module.network.apigw_id
-  apigw_exe_arn = module.network.apigw_exe_arn
-
-  lambda_exec_role_arn = module.security.lambda_exec_role_arn
-  lambda_mem_size      = var.lambda_default_mem
-  lambda_timeout       = var.lambda_default_timeout
-}
-
-module "payment_service" {
-  source = "./services/payment"
-
-  apigw_id      = module.network.apigw_id
-  apigw_exe_arn = module.network.apigw_exe_arn
-
-  lambda_exec_role_arn = module.security.lambda_exec_role_arn
-  lambda_mem_size      = var.lambda_default_mem
-  lambda_timeout       = var.lambda_default_timeout
-}
-
-module "flows" {
-  source = "./flows"
-
-  step_func_role_arn = module.access.step_func_role_arn
+  lambda_exec_role_arn = module.access.lambda_exec_role_arn
 }
