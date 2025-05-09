@@ -4,7 +4,7 @@ data "aws_s3_object" "lambda_zip" {
 }
 
 resource "aws_lambda_function" "reserve_inv" {
-  function_name = var.reserve_lambda_bucket_key
+  function_name = "goorder-reserve-inv"
   role          = var.lambda_exec_role_arn
   runtime       = "nodejs20.x"
   handler       = "index.handler"
