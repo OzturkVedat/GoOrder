@@ -36,13 +36,13 @@ jobs:
           mkdir -p build
           for dir in src/inventory/*/ ; do
             lambda=$(basename "$dir")
-            zip -r "build/inventory-$lambda.zip" "$dir"
+            zip -r "build/$lambda.zip" "$dir"
           done
 
       - name: Upload to S3
         run: |
           for zip in build/*.zip; do
-            key="inventory/${GITHUB_SHA}/$(basename $zip)"
+            key="inventory/$filename"
             echo "Uploading $zip to s3://$BUCKET_NAME/$key"
             aws s3 cp "$zip" "s3://$BUCKET_NAME/$key"
           done
