@@ -1,10 +1,10 @@
 data "aws_s3_object" "order_lambda_zip" {
   bucket = var.lambda_bucket_name
-  key    = var.order_notify_lambda_bucket_key
+  key    = var.order_pub_lambda_bucket_key
 }
 
-resource "aws_lambda_function" "order_notify" {
-  function_name = "goorder-notify-order"
+resource "aws_lambda_function" "order_publish" {
+  function_name = "goorder-publish-order-to-sns"
   role          = var.lambda_exec_role_arn
   runtime       = "nodejs20.x"
   handler       = "index.handler"
@@ -13,7 +13,7 @@ resource "aws_lambda_function" "order_notify" {
   publish       = false
 
   s3_bucket        = var.lambda_bucket_name
-  s3_key           = var.order_notify_lambda_bucket_key
+  s3_key           = var.order_pub_lambda_bucket_key
   source_code_hash = data.aws_s3_object.order_lambda_zip.etag
 
   environment {
@@ -24,6 +24,6 @@ resource "aws_lambda_function" "order_notify" {
 }
 
 
-output "order_notify_lambda_arn" {
-  value = aws_lambda_function.order_notify.arn
+output "order_pub_lambda_arn" {
+  value = aws_lambda_function.order_publish.arn
 }

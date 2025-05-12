@@ -1,6 +1,6 @@
 variable "lambda_bucket_name" {}
 
-variable "order_notify_lambda_bucket_key" {
+variable "order_pub_lambda_bucket_key" {
   default = "pub/order.zip"
 }
 

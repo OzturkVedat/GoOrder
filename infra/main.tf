@@ -105,5 +105,5 @@ module "flows" {
   restore_inv_arn    = module.inventory_service.restore_inv_lambda_arn
   charge_payment_arn = module.payment_service.charge_lambda_arn
   place_order_arn    = module.order_service.place_order_lambda_arn
-  notify_order_arn   = module.notification_service.order_notify_lambda_arn
+  publish_order_arn  = module.pub_service.order_pub_lambda_arn
 }
