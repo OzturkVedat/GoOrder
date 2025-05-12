@@ -1,21 +1,48 @@
-resource "aws_apigatewayv2_integration" "user_registration" {
+locals {
+  user_routes = {
+    register = {
+      path   = "/register-user"
+      method = "POST"
+      lambda = aws_lambda_function.register
+    }
+    verify = {
+      path   = "/verify-user"
+      method = "POST"
+      lambda = aws_lambda_function.verify
+    }
+    login = {
+      path   = "/login"
+      method = "POST"
+      lambda = aws_lambda_function.login
+    }
+  }
+}
+
+resource "aws_apigatewayv2_integration" "user_routes" {
+  for_each = local.user_routes
+
   api_id                 = var.apigw_id
   integration_type       = "AWS_PROXY"
-  integration_uri        = aws_lambda_function.register.arn
-  integration_method     = "POST"
+  integration_uri        = each.value.lambda.arn
+  integration_method     = each.value.method
   payload_format_version = "2.0"
 }
 
-resource "aws_apigatewayv2_route" "user_registration" {
+resource "aws_apigatewayv2_route" "user_routes" {
+  for_each = local.user_routes
+
   api_id    = var.apigw_id
-  route_key = "POST /"
-  target    = "integrations/${aws_apigatewayv2_integration.user_registration.id}"
+  route_key = "${each.value.method} ${each.value.path}"
+  target    = "integrations/${aws_apigatewayv2_integration.user_routes[each.key].id}"
 }
 
-resource "aws_lambda_permission" "apigw_invoke" {
-  statement_id  = "AllowAPIGatewayInvoke"
+resource "aws_lambda_permission" "user_routes" {
+  for_each = local.user_routes
+
+  statement_id  = "AllowInvoke${title(each.key)}"
   action        = "lambda:InvokeFunction"
-  function_name = aws_lambda_function.register.function_name
+  function_name = each.value.lambda.function_name
   principal     = "apigateway.amazonaws.com"
-  source_arn    = "${var.apigw_exe_arn}/*/*"
+  source_arn    = "${var.apigw_exe_arn}/*/${each.value.method}${each.value.path}"
 }
+
