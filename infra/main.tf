@@ -73,9 +73,10 @@ module "payment_service" {
 module "order_service" {
   source = "./services/order"
 
-  apigw_id          = module.network.apigw_id
-  apigw_exe_arn     = module.network.apigw_exe_arn
-  dynamo_table_name = module.storage.dynamo_table_name
+  apigw_id             = module.network.apigw_id
+  apigw_exe_arn        = module.network.apigw_exe_arn
+  dynamo_table_name    = module.storage.dynamo_table_name
+  user_notif_queue_arn = module.event.user_notif_queue_arn
 
   lambda_bucket_name   = var.lambda_bucket_name
   lambda_memory        = var.lambda_default_mem
@@ -89,6 +90,19 @@ module "pub_service" {
   apigw_id               = module.network.apigw_id
   apigw_exe_arn          = module.network.apigw_exe_arn
   order_events_topic_arn = module.event.order_events_topic_arn
+
+  lambda_bucket_name   = var.lambda_bucket_name
+  lambda_memory        = var.lambda_default_mem
+  lambda_timeout       = var.lambda_default_timeout
+  lambda_exec_role_arn = module.access.lambda_exec_role_arn
+}
+
+module "sub_service" {
+  source = "./services/sub"
+
+  apigw_id            = module.network.apigw_id
+  apigw_exe_arn       = module.network.apigw_exe_arn
+  audit_log_queue_arn = module.event.audit_log_queue_arn
 
   lambda_bucket_name   = var.lambda_bucket_name
   lambda_memory        = var.lambda_default_mem

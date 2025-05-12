@@ -1,4 +1,4 @@
-data "aws_s3_object" "lambda_zip" {
+data "aws_s3_object" "place_order_zip" {
   bucket = var.lambda_bucket_name
   key    = var.place_lambda_bucket_key
 }
@@ -14,7 +14,7 @@ resource "aws_lambda_function" "place_order" {
 
   s3_bucket        = var.lambda_bucket_name
   s3_key           = var.place_lambda_bucket_key
-  source_code_hash = data.aws_s3_object.lambda_zip.etag
+  source_code_hash = data.aws_s3_object.place_order_zip.etag
 
   environment {
     variables = {
