@@ -1,0 +1,48 @@
+name: User Lambdas CI
+
+on:
+  workflow_dispatch:
+
+  push:
+    branches: [master]
+    paths:
+      - "src/user/**"
+
+jobs:
+  upload_lambdas:
+    runs-on: ubuntu-latest
+    env:
+      AWS_REGION: ${{secrets.AWS_REGION}}
+      BUCKET_NAME: goorder-lambda-bucket
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Set up AWS creds
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ secrets.AWS_REGION }}
+
+      - name: Zip each Lambda
+        run: |
+          mkdir -p build
+          for dir in src/user/*/ ; do
+            lambda=$(basename "$dir")
+            zip -r "build/$lambda.zip" "$dir"
+          done
+
+      - name: Upload to S3
+        run: |
+          for zip in build/*.zip; do
+            key="user/$filename"
+            echo "Uploading $zip to s3://$BUCKET_NAME/$key"
+            aws s3 cp "$zip" "s3://$BUCKET_NAME/$key"
+          done
