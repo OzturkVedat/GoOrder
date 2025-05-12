@@ -40,8 +40,7 @@ module "access" {
   aws_region            = var.aws_region
   parameter_path_prefix = var.parameter_path_prefix
 
-  dynamo_table_arn       = module.storage.dynamo_table_arn
-  order_events_topic_arn = module.event.order_events_topic_arn
+  dynamo_table_arn = module.storage.dynamo_table_arn
 }
 
 module "inventory_service" {

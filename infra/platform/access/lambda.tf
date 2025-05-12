@@ -56,9 +56,18 @@ resource "aws_iam_policy" "lambda_service_policy" {
         Action = [
           "sns:Publish"
         ]
-        Resource = var.order_events_topic_arn
+        Resource = "*"
       },
-
+      {
+        Sid    = "AllowSQSConsumption",
+        Effect = "Allow",
+        Action = [
+          "sqs:ReceiveMessage",
+          "sqs:DeleteMessage",
+          "sqs:GetQueueAttributes"
+        ],
+        Resource = "*"
+      },
       {
         Sid    = "AllowLogging"
         Effect = "Allow"
