@@ -77,3 +77,14 @@ module "order_service" {
   lambda_timeout       = var.lambda_default_timeout
   lambda_exec_role_arn = module.access.lambda_exec_role_arn
 }
+
+module "flows" {
+  source = "./flows"
+
+  aws_region = var.aws_region
+
+  reserve_inv_arn    = module.inventory_service.reserve_inv_lambda_arn
+  restore_inv_arn    = module.inventory_service.restore_inv_lambda_arn
+  charge_payment_arn = module.payment_service.charge_lambda_arn
+  place_order_arn    = module.order_service.place_order_lambda_arn
+}
