@@ -51,3 +51,29 @@ module "inventory_service" {
   lambda_timeout       = var.lambda_default_timeout
   lambda_exec_role_arn = module.access.lambda_exec_role_arn
 }
+
+module "payment_service" {
+  source = "./services/payment"
+
+  apigw_id          = module.network.apigw_id
+  apigw_exe_arn     = module.network.apigw_exe_arn
+  dynamo_table_name = module.storage.dynamo_table_name
+
+  lambda_bucket_name   = var.lambda_bucket_name
+  lambda_memory        = var.lambda_default_mem
+  lambda_timeout       = var.lambda_default_timeout
+  lambda_exec_role_arn = module.access.lambda_exec_role_arn
+}
+
+module "order_service" {
+  source = "./services/order"
+
+  apigw_id          = module.network.apigw_id
+  apigw_exe_arn     = module.network.apigw_exe_arn
+  dynamo_table_name = module.storage.dynamo_table_name
+
+  lambda_bucket_name   = var.lambda_bucket_name
+  lambda_memory        = var.lambda_default_mem
+  lambda_timeout       = var.lambda_default_timeout
+  lambda_exec_role_arn = module.access.lambda_exec_role_arn
+}

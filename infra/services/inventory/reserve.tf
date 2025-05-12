@@ -1,4 +1,4 @@
-data "aws_s3_object" "lambda_zip" {
+data "aws_s3_object" "reserve_lambda_zip" {
   bucket = var.lambda_bucket_name
   key    = var.reserve_lambda_bucket_key
 }
@@ -14,7 +14,7 @@ resource "aws_lambda_function" "reserve_inv" {
 
   s3_bucket        = var.lambda_bucket_name
   s3_key           = var.reserve_lambda_bucket_key
-  source_code_hash = data.aws_s3_object.lambda_zip.etag
+  source_code_hash = data.aws_s3_object.reserve_lambda_zip.etag
 
   environment {
     variables = {
