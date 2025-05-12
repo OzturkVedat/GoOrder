@@ -29,7 +29,8 @@ resource "aws_iam_role_policy" "step_function_policy" {
           var.reserve_inv_arn,
           var.restore_inv_arn,
           var.charge_payment_arn,
-          var.place_order_arn
+          var.place_order_arn,
+          notify_order_arn
         ]
       }
     ]

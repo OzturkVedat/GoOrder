@@ -22,7 +22,7 @@ locals {
 }
 
 resource "aws_iam_policy" "lambda_service_policy" {
-  name        = "lambda_service_policy"
+  name        = "goorder-lambda-service-policy"
   description = "Policy for Lambda to access SSM, Dynamo, etc"
   policy = jsonencode({
     Version = "2012-10-17"
@@ -75,5 +75,5 @@ resource "aws_iam_policy" "lambda_service_policy" {
 
 resource "aws_iam_role_policy_attachment" "lambda_policy_attach" {
   role       = aws_iam_role.lambda_role.name
-  policy_arn = aws_iam_policy.lambda_ssm_dynamo_policy.arn
+  policy_arn = aws_iam_policy.lambda_service_policy.arn
 }
