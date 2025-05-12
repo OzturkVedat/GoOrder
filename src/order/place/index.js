@@ -53,10 +53,10 @@ exports.handler = async (event) => {
       createdAt,
     };
   } catch (err) {
-    console.error("Error saving order:", err);
+    console.error("Error placing order:", err);
     return {
       isSuccess: false,
-      message: "Failed to save order.",
+      message: "Failed to place order.",
       userId,
       cart,
       totalPrice,

@@ -1,5 +1,5 @@
 {
-  "name": "place_order",
+  "name": "process_order",
   "version": "1.0.0",
   "main": "index.js",
   "scripts": {

@@ -1,7 +1,7 @@
 const { SFNClient, StartExecutionCommand } = require("@aws-sdk/client-sfn");
 
 const sfn = new SFNClient({});
-const STATE_MACH_ARN = process.env.STATE_MACHINE_ARN;
+const STATE_MACHINE_ARN = process.env.PROCESS_ORDER_SM_ARN;
 
 exports.handler = async (event) => {
   const claims = event.requestContext.authorizer.jwt.claims;
