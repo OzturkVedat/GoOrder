@@ -10,6 +10,9 @@ resource "aws_apigatewayv2_route" "process_order_caller" {
   api_id    = var.apigw_id
   route_key = "POST /process-order"
   target    = "integrations/${aws_apigatewayv2_integration.process_order_caller.id}"
+
+  authorizer_id      = var.authorizer_id
+  authorization_type = "JWT"
 }
 
 resource "aws_lambda_permission" "apigw_invoke" {

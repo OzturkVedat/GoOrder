@@ -10,4 +10,6 @@ variable "lambda_memory" {}
 
 variable "apigw_id" {}
 variable "apigw_exe_arn" {}
+variable "authorizer_id" {}
+
 variable "process_order_sm_arn" {}
