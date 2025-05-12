@@ -99,6 +99,22 @@ module "sub_service" {
   lambda_exec_role_arn = module.access.lambda_exec_role_arn
 }
 
+module "user" {
+  source = "./services/user"
+
+  lambda_bucket_name   = var.lambda_bucket_name
+  lambda_memory        = var.lambda_default_mem
+  lambda_timeout       = var.lambda_default_timeout
+  lambda_exec_role_arn = module.access.lambda_exec_role_arn
+
+  aws_region = var.aws_region
+  client_id  = module.auth.app_client_id
+
+  apigw_id      = module.network.apigw_id
+  apigw_exe_arn = module.network.apigw_exe_arn
+
+}
+
 module "flows" {
   source = "./flows"
 
@@ -116,6 +132,7 @@ module "caller" {
 
   apigw_id      = module.network.apigw_id
   apigw_exe_arn = module.network.apigw_exe_arn
+  authorizer_id = module.network.authorizer_id
 
   process_order_sm_arn = module.flows.process_order_sm_arn
   lambda_bucket_name   = var.lambda_bucket_name
