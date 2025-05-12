@@ -1,7 +1,7 @@
 variable "lambda_bucket_name" {}
 
 variable "place_lambda_bucket_key" {
-  default = "order/create.zip"
+  default = "order/place.zip"
 }
 
 variable "lambda_exec_role_arn" {}
