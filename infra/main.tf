@@ -40,8 +40,8 @@ module "access" {
   aws_region            = var.aws_region
   parameter_path_prefix = var.parameter_path_prefix
 
-  dynamo_table_arn = module.storage.dynamo_table_arn
-  order_notify_arn = module.event.order_notify_topic_arn
+  dynamo_table_arn       = module.storage.dynamo_table_arn
+  order_events_topic_arn = module.event.order_events_topic_arn
 }
 
 module "inventory_service" {
@@ -88,7 +88,7 @@ module "notification_service" {
 
   apigw_id               = module.network.apigw_id
   apigw_exe_arn          = module.network.apigw_exe_arn
-  order_notify_topic_arn = module.event.order_notify_topic_arn
+  order_events_topic_arn = module.event.order_events_topic_arn
 
   lambda_bucket_name   = var.lambda_bucket_name
   lambda_memory        = var.lambda_default_mem

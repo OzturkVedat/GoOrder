@@ -10,4 +10,4 @@ variable "lambda_memory" {}
 
 variable "apigw_id" {}
 variable "apigw_exe_arn" {}
-variable "order_notify_topic_arn" {}
+variable "order_events_topic_arn" {}

@@ -1,7 +1,7 @@
 const { SNSClient, PublishCommand } = require("@aws-sdk/client-sns");
 
 const sns = new SNSClient({});
-const ORDER_NOTIF_TOPIC_ARN = process.env.ORDER_NOTIF_TOPIC_ARN;
+const ORDER_NOTIF_TOPIC_ARN = process.env.ORDER_TOPIC_ARN;
 
 exports.handler = async (event) => {
   console.log("Sending order notification: ", JSON.stringify(event));

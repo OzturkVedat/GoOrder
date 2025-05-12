@@ -1,3 +1,3 @@
-resource "aws_sns_topic" "order_notification" {
-  name = "goorder-order-notification"
+resource "aws_sns_topic" "order_events" {
+  name = "goorder-order-events"
 }

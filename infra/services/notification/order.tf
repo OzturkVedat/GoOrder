@@ -18,7 +18,7 @@ resource "aws_lambda_function" "order_notify" {
 
   environment {
     variables = {
-      ORDER_NOTIF_TOPIC_ARN = var.order_notify_topic_arn
+      ORDER_TOPIC_ARN = var.order_events_topic_arn
     }
   }
 }

@@ -56,7 +56,7 @@ resource "aws_iam_policy" "lambda_service_policy" {
         Action = [
           "sns:Publish"
         ]
-        Resource = var.order_notify_arn
+        Resource = var.order_events_topic_arn
       },
 
       {
