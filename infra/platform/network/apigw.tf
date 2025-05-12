@@ -1,6 +1,5 @@
 resource "aws_apigatewayv2_api" "goorder_api" {
   name          = "goorder-apigw"
-  description   = "API Gateway for Order Processing"
   protocol_type = "HTTP"
 
   tags = {

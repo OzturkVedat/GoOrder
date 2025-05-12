@@ -75,3 +75,7 @@ resource "aws_sfn_state_machine" "process_order" {
     }
   })
 }
+
+output "process_order_sm_arn" {
+  value = aws_sfn_state_machine.process_order.arn
+}

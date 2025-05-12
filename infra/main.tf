@@ -46,8 +46,6 @@ module "access" {
 module "inventory_service" {
   source = "./services/inventory"
 
-  apigw_id          = module.network.apigw_id
-  apigw_exe_arn     = module.network.apigw_exe_arn
   dynamo_table_name = module.storage.dynamo_table_name
 
   lambda_bucket_name   = var.lambda_bucket_name
@@ -59,8 +57,6 @@ module "inventory_service" {
 module "payment_service" {
   source = "./services/payment"
 
-  apigw_id          = module.network.apigw_id
-  apigw_exe_arn     = module.network.apigw_exe_arn
   dynamo_table_name = module.storage.dynamo_table_name
 
   lambda_bucket_name   = var.lambda_bucket_name
@@ -72,8 +68,6 @@ module "payment_service" {
 module "order_service" {
   source = "./services/order"
 
-  apigw_id             = module.network.apigw_id
-  apigw_exe_arn        = module.network.apigw_exe_arn
   dynamo_table_name    = module.storage.dynamo_table_name
   user_notif_queue_arn = module.event.user_notif_queue_arn
 
@@ -86,8 +80,6 @@ module "order_service" {
 module "pub_service" {
   source = "./services/pub"
 
-  apigw_id               = module.network.apigw_id
-  apigw_exe_arn          = module.network.apigw_exe_arn
   order_events_topic_arn = module.event.order_events_topic_arn
 
   lambda_bucket_name   = var.lambda_bucket_name
@@ -99,8 +91,6 @@ module "pub_service" {
 module "sub_service" {
   source = "./services/sub"
 
-  apigw_id            = module.network.apigw_id
-  apigw_exe_arn       = module.network.apigw_exe_arn
   audit_log_queue_arn = module.event.audit_log_queue_arn
 
   lambda_bucket_name   = var.lambda_bucket_name
@@ -119,4 +109,21 @@ module "flows" {
   charge_payment_arn = module.payment_service.charge_lambda_arn
   place_order_arn    = module.order_service.place_order_lambda_arn
   publish_order_arn  = module.pub_service.order_pub_lambda_arn
+}
+
+module "caller" {
+  source = "./services/caller"
+
+  apigw_id      = module.network.apigw_id
+  apigw_exe_arn = module.network.apigw_exe_arn
+
+  process_order_sm_arn = module.flows.process_order_sm_arn
+  lambda_bucket_name   = var.lambda_bucket_name
+  lambda_memory        = var.lambda_default_mem
+  lambda_timeout       = var.lambda_default_timeout
+  lambda_exec_role_arn = module.access.lambda_exec_role_arn
+}
+
+output "apigw_url" {
+  value = module.network.apigw_url
 }
