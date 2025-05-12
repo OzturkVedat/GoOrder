@@ -19,7 +19,7 @@ exports.handler = async (event) => {
     input: JSON.stringify(input),
   });
 
-  const result = await sfn.send(command);
+  const result = await sfn.send(command); //trigger
 
   return {
     statusCode: 202,
