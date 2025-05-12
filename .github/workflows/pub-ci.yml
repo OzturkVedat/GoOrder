@@ -1,4 +1,4 @@
-name: Notification Lambdas CI
+name: Publisher Lambdas CI
 
 on:
   workflow_dispatch:
@@ -6,7 +6,7 @@ on:
   push:
     branches: [master]
     paths:
-      - "src/notification/**"
+      - "src/pub/**"
 
 jobs:
   upload_lambdas:
@@ -34,7 +34,7 @@ jobs:
       - name: Zip each Lambda
         run: |
           mkdir -p build
-          for dir in src/notification/*/ ; do
+          for dir in src/pub/*/ ; do
             lambda=$(basename "$dir")
             zip -r "build/$lambda.zip" "$dir"
           done
@@ -42,7 +42,7 @@ jobs:
       - name: Upload to S3
         run: |
           for zip in build/*.zip; do
-            key="notification/$filename"
+            key="pub/$filename"
             echo "Uploading $zip to s3://$BUCKET_NAME/$key"
             aws s3 cp "$zip" "s3://$BUCKET_NAME/$key"
           done
