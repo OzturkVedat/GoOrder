@@ -54,13 +54,23 @@ resource "aws_sfn_state_machine" "process_order" {
       }
       SendSuccessNotification = {
         Type     = "Task"
-        Resource = var.place_order_arn
-        End      = true
+        Resource = var.notify_order_arn
+        Parameters = {
+          "userId.$" : "$.userId",
+          "orderId.$" : "$.orderId",
+          "status" : "success"
+        }
+        End = true
       }
       SendFailureNotification = {
         Type     = "Task"
-        Resource = var.place_order_arn
-        End      = true
+        Resource = var.notify_order_arn
+        Parameters = {
+          "userId.$" : "$.userId",
+          "orderId.$" : "$.orderId",
+          "status" : "failed"
+        }
+        End = true
       }
     }
   })

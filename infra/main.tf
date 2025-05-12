@@ -17,9 +17,12 @@ module "auth" {
   parameter_path_prefix = var.parameter_path_prefix
 }
 
-
 module "storage" {
   source = "./domain/storage"
+}
+
+module "event" {
+  source = "./domain/event"
 }
 
 module "network" {
@@ -35,8 +38,10 @@ module "access" {
   source = "./platform/access"
 
   aws_region            = var.aws_region
-  dynamo_table_arn      = module.storage.dynamo_table_arn
   parameter_path_prefix = var.parameter_path_prefix
+
+  dynamo_table_arn = module.storage.dynamo_table_arn
+  order_notify_arn = module.event.order_notify_topic_arn
 }
 
 module "inventory_service" {
@@ -78,6 +83,19 @@ module "order_service" {
   lambda_exec_role_arn = module.access.lambda_exec_role_arn
 }
 
+module "notification_service" {
+  source = "./services/notification"
+
+  apigw_id               = module.network.apigw_id
+  apigw_exe_arn          = module.network.apigw_exe_arn
+  order_notify_topic_arn = module.event.order_notify_topic_arn
+
+  lambda_bucket_name   = var.lambda_bucket_name
+  lambda_memory        = var.lambda_default_mem
+  lambda_timeout       = var.lambda_default_timeout
+  lambda_exec_role_arn = module.access.lambda_exec_role_arn
+}
+
 module "flows" {
   source = "./flows"
 
@@ -87,4 +105,5 @@ module "flows" {
   restore_inv_arn    = module.inventory_service.restore_inv_lambda_arn
   charge_payment_arn = module.payment_service.charge_lambda_arn
   place_order_arn    = module.order_service.place_order_lambda_arn
+  notify_order_arn   = module.notification_service.order_notify_lambda_arn
 }

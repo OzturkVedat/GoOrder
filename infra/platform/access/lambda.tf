@@ -21,9 +21,9 @@ locals {
   ssm_resource = "arn:aws:ssm:${var.aws_region}:${local.account_id}:parameter/${var.parameter_path_prefix}*"
 }
 
-resource "aws_iam_policy" "lambda_ssm_dynamo_policy" {
-  name        = "lambda_ssm_dynamo_policy"
-  description = "Policy for Lambda to access SSM Parameter Store and DynamoDB"
+resource "aws_iam_policy" "lambda_service_policy" {
+  name        = "lambda_service_policy"
+  description = "Policy for Lambda to access SSM, Dynamo, etc"
   policy = jsonencode({
     Version = "2012-10-17"
     Statement = [
@@ -50,6 +50,15 @@ resource "aws_iam_policy" "lambda_ssm_dynamo_policy" {
         ]
         Resource = var.dynamo_table_arn
       },
+      {
+        Sid    = "SNSPublish"
+        Effect = "Allow"
+        Action = [
+          "sns:Publish"
+        ]
+        Resource = var.order_notify_arn
+      },
+
       {
         Sid    = "AllowLogging"
         Effect = "Allow"
