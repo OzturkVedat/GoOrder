@@ -83,8 +83,8 @@ module "order_service" {
   lambda_exec_role_arn = module.access.lambda_exec_role_arn
 }
 
-module "notification_service" {
-  source = "./services/notification"
+module "pub_service" {
+  source = "./services/pub"
 
   apigw_id               = module.network.apigw_id
   apigw_exe_arn          = module.network.apigw_exe_arn

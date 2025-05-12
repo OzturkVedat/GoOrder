@@ -16,7 +16,7 @@ resource "aws_sns_topic_subscription" "order_events_subs" {
 
   topic_arn            = aws_sns_topic.order_events.arn
   protocol             = "sqs"
-  endpoint             = each.value.topic_arn
+  endpoint             = each.value.arn
   raw_message_delivery = true
 }
 
