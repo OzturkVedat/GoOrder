@@ -1,7 +1,7 @@
 variable "lambda_bucket_name" {}
 
 variable "order_notify_lambda_bucket_key" {
-  default = "notification/order.zip"
+  default = "pub/order.zip"
 }
 
 variable "lambda_exec_role_arn" {}
