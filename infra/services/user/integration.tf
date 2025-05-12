@@ -1,17 +1,17 @@
 locals {
   user_routes = {
     register = {
-      path   = "/register-user"
+      path   = "/user/register"
       method = "POST"
       lambda = aws_lambda_function.register
     }
     verify = {
-      path   = "/verify-user"
+      path   = "/user/verify"
       method = "POST"
       lambda = aws_lambda_function.verify
     }
     login = {
-      path   = "/login"
+      path   = "/user/login"
       method = "POST"
       lambda = aws_lambda_function.login
     }
