@@ -17,5 +17,4 @@ variable "lambda_memory" {}
 variable "apigw_id" {}
 variable "apigw_exe_arn" {}
 
-variable "aws_region" {}
 variable "client_id" {}

@@ -107,8 +107,7 @@ module "user" {
   lambda_timeout       = var.lambda_default_timeout
   lambda_exec_role_arn = module.access.lambda_exec_role_arn
 
-  aws_region = var.aws_region
-  client_id  = module.auth.app_client_id
+  client_id = module.auth.app_client_id
 
   apigw_id      = module.network.apigw_id
   apigw_exe_arn = module.network.apigw_exe_arn

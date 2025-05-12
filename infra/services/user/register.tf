@@ -18,8 +18,7 @@ resource "aws_lambda_function" "register" {
 
   environment {
     variables = {
-      CLIENT_ID  = var.client_id
-      AWS_REGION = var.aws_region
+      CLIENT_ID = var.client_id
     }
   }
 }
