@@ -39,7 +39,7 @@ jobs:
             (
             cd "$dir"           
             npm install          
-            zip -r "../../build/$lambda.zip" .  
+            zip -r "$GITHUB_WORKSPACE/build/$lambda.zip" .  
             )
           done
 
