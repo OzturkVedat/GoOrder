@@ -25,7 +25,8 @@ resource "aws_iam_role_policy" "allow_sfn_start_execution" {
       {
         Effect = "Allow"
         Action = [
-          "states:StartExecution"
+          "states:StartExecution",
+          "states:DescribeExecution"
         ]
         Resource = "*"
       }

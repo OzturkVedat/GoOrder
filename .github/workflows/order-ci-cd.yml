@@ -57,6 +57,7 @@ jobs:
           declare -A FUNCTION_MAP=(
             [notify]="goorder-order-notify"
             [place]="goorder-order-place"
+            [status]="goorder-order-status"
           )
 
           for zip in build/*.zip; do
