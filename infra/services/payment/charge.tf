@@ -4,7 +4,7 @@ data "aws_s3_object" "lambda_zip" {
 }
 
 resource "aws_lambda_function" "charge" {
-  function_name = "goorder-charge-payment"
+  function_name = "goorder-payment-charge"
   role          = var.lambda_exec_role_arn
   runtime       = "nodejs20.x"
   handler       = "index.handler"

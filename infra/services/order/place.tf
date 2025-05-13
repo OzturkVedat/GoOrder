@@ -4,7 +4,7 @@ data "aws_s3_object" "place_order_zip" {
 }
 
 resource "aws_lambda_function" "place_order" {
-  function_name = "goorder-place-order"
+  function_name = "goorder-order-place"
   role          = var.lambda_exec_role_arn
   runtime       = "nodejs20.x"
   handler       = "index.handler"

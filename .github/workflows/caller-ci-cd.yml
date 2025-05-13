@@ -1,4 +1,4 @@
-name: Caller Lambdas CI
+name: Caller Lambdas CI/CD
 
 on:
   workflow_dispatch:
@@ -9,7 +9,7 @@ on:
       - "src/caller/**"
 
 jobs:
-  upload_lambdas:
+  update_lambdas:
     runs-on: ubuntu-latest
     env:
       AWS_REGION: ${{secrets.AWS_REGION}}
@@ -36,13 +36,40 @@ jobs:
           mkdir -p build
           for dir in src/caller/*/ ; do
             lambda=$(basename "$dir")
-            zip -r "build/$lambda.zip" "$dir"
+            zip -j "build/$lambda.zip" "$dir"*
           done
 
       - name: Upload to S3
         run: |
           for zip in build/*.zip; do
+            filename=$(basename "$zip")
             key="caller/$filename"
             echo "Uploading $zip to s3://$BUCKET_NAME/$key"
             aws s3 cp "$zip" "s3://$BUCKET_NAME/$key"
+          done
+
+      - name: Update Lambda functions
+        run: |
+          declare -A FUNCTION_MAP=(
+            [process_order]="goorder-caller-process-order"
+          )
+
+          for zip in build/*.zip; do
+            filename=$(basename "$zip")
+            folder_name="${filename%.zip}"
+            function_name="${FUNCTION_MAP[$folder_name]}"
+            s3_key="caller/$filename"
+
+            if [ -z "$function_name" ]; then
+              echo "No function mapping found for $folder_name. Skipping..."
+              continue
+            fi
+
+            echo "Updating Lambda: $function_name from s3://$BUCKET_NAME/$s3_key"
+
+            aws lambda update-function-code \
+              --function-name "$function_name" \
+              --s3-bucket "$BUCKET_NAME" \
+              --s3-key "$s3_key" \
+              --region "$AWS_REGION"
           done

@@ -4,7 +4,7 @@ data "aws_s3_object" "notify_order_zip" {
 }
 
 resource "aws_lambda_function" "notify_order" {
-  function_name = "goorder-notify-order"
+  function_name = "goorder-order-notify"
   role          = var.lambda_exec_role_arn
   runtime       = "nodejs20.x"
   handler       = "index.handler"

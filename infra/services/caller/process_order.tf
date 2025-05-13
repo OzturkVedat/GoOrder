@@ -4,7 +4,7 @@ data "aws_s3_object" "process_order_caller_zip" {
 }
 
 resource "aws_lambda_function" "process_order_caller" {
-  function_name = "goorder-process-order-caller"
+  function_name = "goorder-caller-process-order"
   role          = var.lambda_exec_role_arn
   runtime       = "nodejs20.x"
   handler       = "index.handler"
