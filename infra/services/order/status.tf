@@ -17,12 +17,6 @@ resource "aws_lambda_function" "order_status" {
   source_code_hash = data.aws_s3_object.order_status_zip.etag
 }
 
-resource "aws_lambda_event_source_mapping" "order_status_consumer" {
-  event_source_arn = var.user_notif_queue_arn
-  function_name    = aws_lambda_function.order_status.function_name
-  batch_size       = 10
-}
-
 output "order_status_lambda_arn" {
   value = aws_lambda_function.order_status.arn
 }
