@@ -20,5 +20,5 @@ resource "aws_lambda_permission" "apigw_invoke" {
   action        = "lambda:InvokeFunction"
   function_name = aws_lambda_function.process_order_caller.function_name
   principal     = "apigateway.amazonaws.com"
-  source_arn    = "${var.apigw_exe_arn}/*/*"
+  source_arn    = "${var.apigw_exe_arn}/*/POST/process-order"
 }
