@@ -75,6 +75,11 @@ module "order_service" {
   lambda_memory        = var.lambda_default_mem
   lambda_timeout       = var.lambda_default_timeout
   lambda_exec_role_arn = module.access.lambda_exec_role_arn
+  caller_exec_role_arn = module.access.caller_exec_role_arn
+
+  apigw_id      = module.network.apigw_id
+  apigw_exe_arn = module.network.apigw_exe_arn
+  authorizer_id = module.network.authorizer_id
 }
 
 module "pub_service" {
