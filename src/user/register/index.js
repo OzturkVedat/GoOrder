@@ -35,7 +35,7 @@ exports.handler = async (event) => {
         userConfirmed: result.UserConfirmed,
       }),
     };
-  } catch (error) {
+  } catch (err) {
     console.error("Registration error:", err);
 
     let message = "Registration failed.";
