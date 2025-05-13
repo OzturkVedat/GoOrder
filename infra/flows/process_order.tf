@@ -20,12 +20,12 @@ resource "aws_sfn_state_machine" "process_order" {
       RestoreInventory = {
         Type     = "Task"
         Resource = var.reserve_inv_arn
-        Next     = "CheckInventoryResult"
         Catch = [{
           ErrorEquals = ["States.ALL"]
-          ResultPath  = "$.error"
+          ResultPath  = "$.reserveError"
           Next        = "SendFailureNotification"
         }]
+        Next = "SendFailureNotification"
       }
       CheckInventoryResult = {
         Type = "Choice"
@@ -44,6 +44,7 @@ resource "aws_sfn_state_machine" "process_order" {
         Next     = "CreateOrder"
         Catch = [{
           ErrorEquals = ["States.ALL"]
+          ResultPath  = "$.reserveError"
           Next        = "RestoreInventory"
         }]
       }

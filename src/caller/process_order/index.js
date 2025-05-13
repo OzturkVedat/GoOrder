@@ -26,6 +26,7 @@ exports.handler = async (event) => {
       userId,
       cart,
     };
+    console.log("Triggering the Step function with input: ", input);
     const command = new StartExecutionCommand({
       stateMachineArn: STATE_MACHINE_ARN,
       input: JSON.stringify(input),
