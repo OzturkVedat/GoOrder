@@ -7,6 +7,12 @@ resource "aws_apigatewayv2_api" "goorder_api" {
   }
 }
 
+resource "aws_apigatewayv2_stage" "default" {
+  api_id      = aws_apigatewayv2_api.goorder_api.id
+  name        = "$default"
+  auto_deploy = true
+}
+
 resource "aws_apigatewayv2_authorizer" "cognito_jwt_auth" {
   api_id           = aws_apigatewayv2_api.goorder_api.id
   authorizer_type  = "JWT"
