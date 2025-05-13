@@ -27,7 +27,9 @@ resource "aws_iam_policy" "lambda_service_policy" {
         Effect = "Allow"
         Action = [
           "dynamodb:GetItem",
+          "dynamodb:BatchGetItem",
           "dynamodb:PutItem",
+          "dynamodb:TransactWriteItems",
           "dynamodb:UpdateItem",
           "dynamodb:DeleteItem",
           "dynamodb:Query",

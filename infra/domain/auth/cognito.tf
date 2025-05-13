@@ -35,6 +35,16 @@ resource "aws_cognito_user_pool_client" "app_client" {
   generate_secret     = false # jwt auth does not require a secret
   explicit_auth_flows = ["ALLOW_USER_PASSWORD_AUTH", "ALLOW_REFRESH_TOKEN_AUTH"]
 
+  access_token_validity  = 120
+  id_token_validity      = 120
+  refresh_token_validity = 7
+
+  token_validity_units {
+    access_token  = "minutes"
+    id_token      = "minutes"
+    refresh_token = "days"
+  }
+
   prevent_user_existence_errors = "ENABLED"
 }
 
