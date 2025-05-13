@@ -36,7 +36,11 @@ jobs:
           mkdir -p build
           for dir in src/order/*/ ; do
             lambda=$(basename "$dir")
-            zip -j "build/$lambda.zip" "$dir"*
+            (
+            cd "$dir"           
+            npm install          
+            zip -r "../../build/$lambda.zip" .  
+            )
           done
 
       - name: Upload to S3
