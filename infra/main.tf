@@ -99,7 +99,7 @@ module "sub_service" {
   lambda_exec_role_arn = module.access.lambda_exec_role_arn
 }
 
-module "user" {
+module "user_service" {
   source = "./services/user"
 
   lambda_bucket_name   = var.lambda_bucket_name
@@ -126,7 +126,7 @@ module "flows" {
   publish_order_arn  = module.pub_service.order_pub_lambda_arn
 }
 
-module "caller" {
+module "caller_service" {
   source = "./services/caller"
 
   apigw_id      = module.network.apigw_id
@@ -137,7 +137,7 @@ module "caller" {
   lambda_bucket_name   = var.lambda_bucket_name
   lambda_memory        = var.lambda_default_mem
   lambda_timeout       = var.lambda_default_timeout
-  lambda_exec_role_arn = module.access.lambda_exec_role_arn
+  caller_exec_role_arn = module.access.caller_exec_role_arn
 }
 
 output "apigw_url" {

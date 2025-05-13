@@ -4,7 +4,7 @@ variable "process_order_caller_bucket_key" {
   default = "caller/process_order.zip"
 }
 
-variable "lambda_exec_role_arn" {}
+variable "caller_exec_role_arn" {}
 variable "lambda_timeout" {}
 variable "lambda_memory" {}
 

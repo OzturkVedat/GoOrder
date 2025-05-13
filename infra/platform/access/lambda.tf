@@ -1,5 +1,5 @@
 resource "aws_iam_role" "lambda_role" {
-  name = "lambda_execution_role"
+  name = "goorder-lambda-service-exec-role"
 
   assume_role_policy = jsonencode({
     Version = "2012-10-17"
@@ -15,15 +15,10 @@ resource "aws_iam_role" "lambda_role" {
   })
 }
 
-data "aws_caller_identity" "current" {}
-locals {
-  account_id   = data.aws_caller_identity.current.account_id
-  ssm_resource = "arn:aws:ssm:${var.aws_region}:${local.account_id}:parameter/${var.parameter_path_prefix}*"
-}
 
 resource "aws_iam_policy" "lambda_service_policy" {
   name        = "goorder-lambda-service-policy"
-  description = "Policy for Lambda to access SSM, Dynamo, etc"
+  description = "Policy for Lambda to access Dynamo, SNS etc"
   policy = jsonencode({
     Version = "2012-10-17"
     Statement = [
