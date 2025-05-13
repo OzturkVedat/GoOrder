@@ -40,6 +40,7 @@ else:
             "Name": "Gaming Laptop",
             "Price": 1200,
             "Stock": 4,
+            "Reserved": 0,
             "Category": "Electronics",
         },
         {
@@ -48,6 +49,7 @@ else:
             "Name": "Mechanical Keyboard",
             "Price": 150,
             "Stock": 11,
+            "Reserved": 0,
             "Category": "Electronics",
         },
         {
@@ -56,6 +58,7 @@ else:
             "Name": "Running Shoes",
             "Price": 80,
             "Stock": 17,
+            "Reserved": 0,
             "Category": "Shoes",
         },
         {
@@ -64,6 +67,7 @@ else:
             "Name": "Denim Jacket",
             "Price": 50,
             "Stock": 21,
+            "Reserved": 0,
             "Category": "Clothing",
         },
     ]

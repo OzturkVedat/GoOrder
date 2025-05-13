@@ -38,6 +38,12 @@ exports.handler = async (event) => {
     );
 
     const dbItems = response.Responses?.[TABLE_NAME] || [];
+    if (dbItems.length < keys.length) {
+      return {
+        isSuccess: false,
+        message: "One or more products not found.",
+      };
+    }
 
     let totalPrice = 0;
     const transactItems = [];
