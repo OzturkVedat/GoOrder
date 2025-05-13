@@ -36,7 +36,7 @@ jobs:
           mkdir -p build
           for dir in src/user/*/ ; do
             lambda=$(basename "$dir")
-            zip -r "build/$lambda.zip" "$dir"
+            zip -j "build/$lambda.zip" "$dir"*
           done
 
       - name: Upload to S3
