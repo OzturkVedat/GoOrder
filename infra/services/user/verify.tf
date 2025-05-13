@@ -4,7 +4,7 @@ data "aws_s3_object" "verify_zip" {
 }
 
 resource "aws_lambda_function" "verify" {
-  function_name = "goorder-verify-user"
+  function_name = "goorder-user-verify"
   role          = var.lambda_exec_role_arn
   runtime       = "nodejs20.x"
   handler       = "index.handler"

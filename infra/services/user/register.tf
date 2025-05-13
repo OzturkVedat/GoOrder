@@ -4,7 +4,7 @@ data "aws_s3_object" "register_zip" {
 }
 
 resource "aws_lambda_function" "register" {
-  function_name = "goorder-register-user"
+  function_name = "goorder-user-register"
   role          = var.lambda_exec_role_arn
   runtime       = "nodejs20.x"
   handler       = "index.handler"

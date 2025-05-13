@@ -1,4 +1,4 @@
-name: User Lambdas CI
+name: User Lambdas CI/CD
 
 on:
   workflow_dispatch:
@@ -9,7 +9,7 @@ on:
       - "src/user/**"
 
 jobs:
-  upload_lambdas:
+  update_lambdas:
     runs-on: ubuntu-latest
     env:
       AWS_REGION: ${{secrets.AWS_REGION}}
@@ -42,7 +42,36 @@ jobs:
       - name: Upload to S3
         run: |
           for zip in build/*.zip; do
+            filename=$(basename "$zip")
             key="user/$filename"
             echo "Uploading $zip to s3://$BUCKET_NAME/$key"
             aws s3 cp "$zip" "s3://$BUCKET_NAME/$key"
+          done
+
+      - name: Update Lambda functions
+        run: |
+          declare -A FUNCTION_MAP=(
+            [register]="goorder-user-register"
+            [verify]="goorder-user-verify"
+            [login]="goorder-user-login"
+          )
+
+          for zip in build/*.zip; do
+            filename=$(basename "$zip")
+            folder_name="${filename%.zip}"
+            function_name="${FUNCTION_MAP[$folder_name]}"
+            s3_key="user/$filename"
+
+            if [ -z "$function_name" ]; then
+              echo "No function mapping found for $folder_name. Skipping..."
+              continue
+            fi
+
+            echo "Updating Lambda: $function_name from s3://$BUCKET_NAME/$s3_key"
+
+            aws lambda update-function-code \
+              --function-name "$function_name" \
+              --s3-bucket "$BUCKET_NAME" \
+              --s3-key "$s3_key" \
+              --region "$AWS_REGION"
           done
