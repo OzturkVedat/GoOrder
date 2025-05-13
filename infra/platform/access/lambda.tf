@@ -28,16 +28,6 @@ resource "aws_iam_policy" "lambda_service_policy" {
     Version = "2012-10-17"
     Statement = [
       {
-        Sid    = "SSMParameterReadAccess"
-        Effect = "Allow"
-        Action = [
-          "ssm:GetParameter",
-          "ssm:GetParameters",
-          "ssm:GetParametersByPath"
-        ]
-        Resource = local.ssm_resource
-      },
-      {
         Sid    = "DynamoDBAccess"
         Effect = "Allow"
         Action = [

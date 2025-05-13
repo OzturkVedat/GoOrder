@@ -7,7 +7,7 @@ resource "aws_cognito_user_pool" "user_pool" {
   password_policy {
     minimum_length    = 8
     require_lowercase = true
-    require_uppercase = true
+    require_uppercase = false
     require_numbers   = true
     require_symbols   = false
   }
@@ -38,24 +38,3 @@ resource "aws_cognito_user_pool_client" "app_client" {
   prevent_user_existence_errors = "ENABLED"
 }
 
-
-
-resource "aws_ssm_parameter" "user_pool_id" {
-  name  = "${var.parameter_path_prefix}user-pool-id"
-  type  = "SecureString"
-  value = aws_cognito_user_pool.user_pool.id
-
-  tags = {
-    Name = "GoOrderUserPoolId"
-  }
-}
-
-resource "aws_ssm_parameter" "app_client_id" {
-  name  = "${var.parameter_path_prefix}app-client-id"
-  type  = "SecureString"
-  value = aws_cognito_user_pool_client.app_client.id
-
-  tags = {
-    Name = "GoOrderAppClientId"
-  }
-}
