@@ -13,7 +13,8 @@ I built this project to learn about **orchestration** with Step Functions and **
 - Event-driven communication using **SNS** and **SQS**
 - Serverless architecture- no servers to manage
 - IaC with **Terraform**
-- Easily extensible for new workflows and services
+- CI/CD pipelines using **GitHub Actions**
+- Extensible for new workflows and services
 
 ---
 
