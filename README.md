@@ -2,8 +2,6 @@
 
 This is a simple serverless backend for processing orders. It's built with **AWS Lambda**, **Step Functions**, **SNS**/**SQS** and **Cognito**. The API is exposed through **HTTP APIGW** and uses JWT for auth.
 
-I built this project to learn about **orchestration** with Step Functions and **event-driven** patterns using SNS and SQS.
-
 ---
 
 ## Features
