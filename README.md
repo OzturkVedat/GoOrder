@@ -1,6 +1,6 @@
 # GoOrder - Order Processing Implementation
 
-This is a simple serverless backend for processing orders. It's built with **AWS Lambda**, **Step Functions**, **SNS**, and **SQS**, and uses **Amazon Cognito** for login. The API is exposed through **HTTP API Gateway** and secured with JWT.
+This is a simple serverless backend for processing orders. It's built with **AWS Lambda**, **Step Functions**, **SNS**/**SQS** and **Cognito**. The API is exposed through **HTTP APIGW** and secured with JWT.
 
 I built this project to learn about **orchestration** with Step Functions and **event-driven** patterns using SNS and SQS.
 
@@ -13,7 +13,7 @@ I built this project to learn about **orchestration** with Step Functions and **
 - Event-driven communication using **SNS** and **SQS**
 - Serverless architecture- no servers to manage
 - IaC with **Terraform**
-- CI/CD pipelines using **GitHub Actions**
+- CI/CD using **GitHub Actions**
 - Extensible for new workflows and services
 
 ---
